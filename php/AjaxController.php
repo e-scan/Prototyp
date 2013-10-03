@@ -48,6 +48,27 @@ class AjaxController {
 				
 				break;
 			
+			case "load_localgraph-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/localgraph.html" );
+				
+				break;
+			
+			case "load_loadingpage-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/loadingpage.html" );
+				
+				break;
+			
+			case "load_monitoring-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/monitoring.html" );
+				
+				break;
+			
 			default :
 				$result = "Ein Fehler ist aufgetreten!";
 				

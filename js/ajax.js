@@ -16,6 +16,55 @@ $(document).ready(function() {
 		return false;
 	});
 
+	// AJAX-Aufruf mit Template nachladen
+	$("button#load_localgraph-template").click(function() {
+
+		$.ajax({
+			type : "POST",
+			url : "server.php",
+			data : {
+				method : "load_localgraph-template"
+			},
+			success : function(content) {
+				$("#content").html(content);
+			}
+		});
+
+		return false;
+	});
+
+	$("button#load_loadingpage-template").click(function() {
+
+		$.ajax({
+			type : "POST",
+			url : "server.php",
+			data : {
+				method : "load_loadingpage-template"
+			},
+			success : function(content) {
+				$("#content").html(content);
+			}
+		});
+
+		return false;
+	});
+
+	$("button#load_monitoring-template").click(function() {
+
+		$.ajax({
+			type : "POST",
+			url : "server.php",
+			data : {
+				method : "load_monitoring-template"
+			},
+			success : function(content) {
+				$("#content").html(content);
+			}
+		});
+
+		return false;
+	});
+
 });
 
 /**
