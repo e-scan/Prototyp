@@ -1,0 +1,28 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<div id="localgraph-container" >
+
+	<script type="text/javascript">
+		var values = [ [ new Date(2012, 1, 1, 0, 0), 5 ],
+				[ new Date(2012, 1, 1, 0, 15), 20 ],
+				[ new Date(2012, 1, 1, 0, 45), 13 ],
+				[ new Date(2012, 1, 1, 1, 0), 14 ],
+				[ new Date(2012, 1, 1, 1, 15), null ],
+				[ new Date(2012, 1, 1, 1, 30), 15 ],
+				[ new Date(2012, 1, 1, 1, 45), 10 ],
+				[ new Date(2012, 1, 1, 2, 0), 4 ],
+				[ new Date(2012, 1, 1, 2, 15), 17 ],
+				[ new Date(2012, 1, 1, 2, 30), 15 ] ];
+
+		g = new Dygraph(document.getElementById("localgraph-container"),
+				values, {
+					title : 'ein Lastgang',
+					legend : 'always',
+					showRangeSelector : true,
+					labels : [ "Time", "Drain" ]
+				});
+	</script>
+
+</div>
