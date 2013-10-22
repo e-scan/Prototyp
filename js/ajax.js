@@ -48,7 +48,7 @@ $(document).ready(function() {
 
 		return false;
 	});
-	
+
 	$("button#load_loadingpageDEV-template").click(function() {
 
 		$.ajax({

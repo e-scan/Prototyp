@@ -169,16 +169,6 @@
 					
 				});
 
-				<!-- now the logic for saving as png and svg -->
-				
-				$("button#generate_png").click(function() {
-
-					var png = document.getElementById('graph_png');
-					Dygraph.Export.asPNG(g, png);
-
-					return false;
-				});
-
 			}
 
 			// Read in the image file as a binary string.

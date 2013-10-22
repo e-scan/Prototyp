@@ -1,5 +1,21 @@
 @CHARSET "ISO-8859-1";
 
+#head {
+	text-align: center;
+}
+
+#name {
+	float: left;
+}
+
+#toolbox {
+	
+}
+
+#logo {
+	float: right;
+}
+
 #progress_bar {
 	margin: 10px 0;
 	padding: 3px;
@@ -23,9 +39,10 @@
 }
 
 #graph {
-	position: relative;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
+	<!-- resize: both; -->
+	<!-- overflow: auto; -->
+}
+
+#content {
+	
 }

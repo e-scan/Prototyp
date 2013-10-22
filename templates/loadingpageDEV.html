@@ -1,5 +1,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="js/jquery-2.0.3.js"></script>
+<script type="text/javascript" src="js/dygraph-combined.js"></script>
+<script type="text/javascript" src="js/dygraph-extra.js"></script>
+<script type="text/javascript" src="js/loadingpage.js"></script>
 </head>
 
 <div id="loadingpage-container">
@@ -12,188 +16,38 @@
 			href="http://e-scan1.giessel-it.de/doc/HowTo-Lastgangumwandlung_v001.pdf">hier</a>.<br>Alternativ
 		einfach eine Mail schreiben!<br>(Dies ist eine vorübergehende
 		Lösung, bis eine schöne Lösung gefunden ist!))<br> <b>Vorsicht,
-			dies hier ist die noch experimentellere Ecke!</b> <br>
-		<b>Zum Zoomen (Horizontal und Vertikal) mit gedrückter Maustaste einen Bereich im Diagramm markieren!<br>
-		 Um das Diagramm zu verschieben, mit "shift" und gedrückter Maustaste die Maus bewegen!</b>
-		
+			dies hier ist die noch experimentellere Ecke!</b> <br> <b>Zum
+			Zoomen (Horizontal und Vertikal) mit gedrückter Maustaste einen
+			Bereich im Diagramm markieren!<br> Um das Diagramm zu
+			verschieben, mit "shift" und gedrückter Maustaste die Maus bewegen!
+		</b>
+
 	</p>
 
 	<!-- here comes the file-input with progressbar etc! -->
 	<input type="file" id="files" name="file" />
 	<button onclick="abortRead();">Laden abbrechen</button>
+	<br>
 	<div id="progress_bar">
 		<div class="percent">0%</div>
 	</div>
 
 	<!-- here the graph will be drawn in! -->
 	<div id="graph" style="height: 500px; width: 95%;"></div>
+	<div id=""></div>
 
 	<!-- here the graph will be drawn in! -->
 	<div id="graph-img">
 		<button id="restore_position">Position zurücksetzen</button>
 		<button id="generate_png">erzeuge PNG</button>
-		<img id="graph_png">
+		<br> <img id="graph_png">
 	</div>
 
-	<!-- now the logic for the upload -->
-	<script>
-		var reader;
-		var progress = document.querySelector('.percent');
-
-		function abortRead() {
-			reader.abort();
-			alert("reading aborted!");
-		}
-
-		function errorHandler(evt) {
-			switch (evt.target.error.code) {
-			case evt.target.error.NOT_FOUND_ERR:
-				alert('File Not Found!');
-				break;
-			case evt.target.error.NOT_READABLE_ERR:
-				alert('File is not readable');
-				break;
-			case evt.target.error.ABORT_ERR:
-				break; // noop
-			default:
-				alert('An error occurred reading this file.');
-			}
-			;
-		}
-
-		function updateProgress(evt) {
-			// evt is an ProgressEvent.
-			if (evt.lengthComputable) {
-				var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
-				// Increase the progress bar length.
-				if (percentLoaded < 100) {
-					progress.style.width = percentLoaded + '%';
-					progress.textContent = percentLoaded + '%';
-				}
-			}
-		}
-
-		function handleFileSelect(evt) {
-			// Reset progress indicator on new file selection.
-			progress.style.width = '0%';
-			progress.textContent = '0%';
-
-			reader = new FileReader();
-			reader.onerror = errorHandler;
-			reader.onprogress = updateProgress;
-
-			reader.onabort = function(e) {
-				alert('File read cancelled');
-			};
-
-			reader.onloadstart = function(e) {
-				document.getElementById('progress_bar').className = 'loading';
-			};
-
-			reader.onload = function(e) {
-				// Ensure that the progress bar displays 100% at the end.
-				progress.style.width = '100%';
-				progress.textContent = '100%';
-				setTimeout(
-						"document.getElementById('progress_bar').className='';",
-						2000);
-
-				//result contains the textfile as a string
-				var result = e.target.result;
-
-				//lines contains the textfile but splittet into single lines [array]
-				var lines = result.split('\n');
-				
-				//loose contains lines but date and value are separated [array]
-				var loose = new Array();
-				
-				//maxValue of the values for further use
-				var maxValue = 0;
-				
-				//handle the first line separatly, because this contains the header-string
-				var tmp = lines[0].split(",");
-				//loose.push(tmp[0]);
-				loose.push('Date');
-				loose.push(tmp[1]);
-				
-				//for all other, split into groups and push into loose
-				//and while doing that, find the maxValue
-				for (var i = 1; i < lines.length; i++) {
-					
-					var tmp = lines[i].split(",");
-					loose.push(new Date(tmp[0]));
-					loose.push(tmp[1]);
-					
-					// finding MaxValue
-					if (parseFloat(tmp[1])>parseFloat(maxValue)){
-						maxValue=tmp[1];
-					}
-				}
-				
-				//this is the array dygraphs gets to draw the graphs
-				var content = new Array();
-				
-				var twentyPercentLine=maxValue*0.8;
-				//var twentyPercentLine=200;
-				
-				for (var i=1; i<lines.length-1; i++)
-				{
-					//better this way with the transition from one graph to the next, but not nearly perfect!
-					var tmp = new Array(loose[i*2], loose[i*2+1],twentyPercentLine,maxValue);
-
-					//now the tmp-array can go into the data
-				   	content.push(tmp);
-				}
-				
-				var yRange = [0, maxValue*1.1];
-				//var yRange = [0, 350];
-				
-				g = new Dygraph(document.getElementById("graph"), content, {
-					//customBars: true,
-					valueRange: yRange,
-		            //showRoller: true,
-		            rollPeriod: 0,
-					animatedZooms: true,
-					title : 'Lastgang',
-					ylabel : 'KWh',
-					//legend : 'always',
-					//showRangeSelector : true,
-					//rangeSelectorPlotStrokeColor: 'yellow',
-		            //rangeSelectorPlotFillColor: 'lightyellow',
-		            //rangeSelectorHeight: 30,
-					colors: ["rgba(0,128,128,1.0)",
-	                         "rgba(31,173,23,1.0)",
-	                         "rgba(219,59,42,1.0)"],
-	                labelsDivStyles: { 'textAlign': 'left' },
-	                labelsDivWidth: 120,
-	                labelsSeparateLines: "<br/>",
-	     		    labels : [ loose[0], loose[1], '20%', 'MaxValue']
-				});
-				
-				$("button#restore_position").click(function() {
-
-					g.resetZoom();
-					
-				});
-
-				<!-- now the logic for saving as png and svg -->
-				
-				$("button#generate_png").click(function() {
-
-					var png = document.getElementById('graph_png');
-					Dygraph.Export.asPNG(g, png);
-
-					return false;
-				});
-
-			}
-
-			// Read in the image file as a binary string.
-			reader.readAsBinaryString(evt.target.files[0]);
-		}
-
+	<script type="text/javascript">
 		document.getElementById('files').addEventListener('change',
 				handleFileSelect, false);
 	</script>
+
+
 
 </div>
