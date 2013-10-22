@@ -7,11 +7,15 @@
 	<p>
 		Hier könnten allgemeine Informationen zur Beschaffenheit der Dateien
 		stehen!<br>(simple.txt ist für dieses Beispiel formatiert; es
-		handelt sich um einen gesamten Jahres-Lastgang (Originaldaten!))<br>
+		handelt sich um einen gesamten Jahres-Lastgang (Originaldaten!)) <br>
 		(Eine Anleitung um einen Lastgang passend zu formatieren gibt es <a
 			href="http://e-scan1.giessel-it.de/doc/HowTo-Lastgangumwandlung_v001.pdf">hier</a>.<br>Alternativ
-		einfach eine Mail schreiben!<br>(Dies ist eine vorübergehende Lösung,
-		bis eine schöne Lösung gefunden ist!)
+		einfach eine Mail schreiben!<br>(Dies ist eine vorübergehende
+		Lösung, bis eine schöne Lösung gefunden ist!))<br> <b>Vorsicht,
+			dies hier ist die noch experimentellere Ecke!</b> <br>
+		<b>Zum Zoomen (Horizontal und Vertikal) mit gedrückter Maustaste einen Bereich im Diagramm markieren!<br>
+		 Um das Diagramm zu verschieben, mit "shift" und gedrückter Maustaste die Maus bewegen!</b>
+		
 	</p>
 
 	<!-- here comes the file-input with progressbar etc! -->
@@ -94,18 +98,76 @@
 						"document.getElementById('progress_bar').className='';",
 						2000);
 
-				var content = e.target.result;
+				//result contains the textfile as a string
+				var result = e.target.result;
 
-				//alert(content);
+				//lines contains the textfile but splittet into single lines [array]
+				var lines = result.split('\n');
+				
+				//loose contains lines but date and value are separated [array]
+				var loose = new Array();
+				
+				//maxValue of the values for further use
+				var maxValue = 0;
+				
+				//handle the first line separatly, because this contains the header-string
+				var tmp = lines[0].split(",");
+				//loose.push(tmp[0]);
+				loose.push('Date');
+				loose.push(tmp[1]);
+				
+				//for all other, split into groups and push into loose
+				//and while doing that, find the maxValue
+				for (var i = 1; i < lines.length; i++) {
+					
+					var tmp = lines[i].split(",");
+					loose.push(new Date(tmp[0]));
+					loose.push(tmp[1]);
+					
+					// finding MaxValue
+					if (parseFloat(tmp[1])>parseFloat(maxValue)){
+						maxValue=tmp[1];
+					}
+				}
+				
+				//this is the array dygraphs gets to draw the graphs
+				var content = new Array();
+				
+				var twentyPercentLine=maxValue*0.8;
+				//var twentyPercentLine=200;
+				
+				for (var i=1; i<lines.length-1; i++)
+				{
+					//better this way with the transition from one graph to the next, but not nearly perfect!
+					var tmp = new Array(loose[i*2], loose[i*2+1],twentyPercentLine,maxValue);
 
+					//now the tmp-array can go into the data
+				   	content.push(tmp);
+				}
+				
+				var yRange = [0, maxValue*1.1];
+				//var yRange = [0, 350];
+				
 				g = new Dygraph(document.getElementById("graph"), content, {
-		            showRoller: true,
+					//customBars: true,
+					valueRange: yRange,
+		            //showRoller: true,
+		            rollPeriod: 0,
 					animatedZooms: true,
-					rollPeriod: 0,
 					title : 'Lastgang',
-					legend : 'always',
-					showRangeSelector : true,
-					labels : [ "Zeit", "Verbrauch" ]
+					ylabel : 'KWh',
+					//legend : 'always',
+					//showRangeSelector : true,
+					//rangeSelectorPlotStrokeColor: 'yellow',
+		            //rangeSelectorPlotFillColor: 'lightyellow',
+		            //rangeSelectorHeight: 30,
+					colors: ["rgba(0,128,128,1.0)",
+	                         "rgba(31,173,23,1.0)",
+	                         "rgba(219,59,42,1.0)"],
+	                labelsDivStyles: { 'textAlign': 'left' },
+	                labelsDivWidth: 120,
+	                labelsSeparateLines: "<br/>",
+	     		    labels : [ loose[0], loose[1], '20%', 'MaxValue']
 				});
 				
 				$("button#restore_position").click(function() {

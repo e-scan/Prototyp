@@ -11,7 +11,8 @@
 	</p>
 
 	<!-- here the graph will be drawn in! -->
-	<div id="graph" style="height: 400px; width: 95%;"></div>
+	<div id="graph" style="height: 500px; width: 95%;"></div>
+	<button id="restore_position">Position zurücksetzen</button>
 
 	<!-- now the logic for the update -->
 	<script>
@@ -38,6 +39,12 @@
 					'file' : data
 				});
 			}, 1000);
+
+			$("button#restore_position").click(function() {
+
+				g.resetZoom();
+
+			});
 		});
 	</script>
 

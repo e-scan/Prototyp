@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	// Einfacher AJAX-Aufruf
-	$("button#testcall").click(function() {
+	$("button#load_html5test-template").click(function() {
 
 		$.ajax({
 			type : "POST",
@@ -9,7 +9,7 @@ $(document).ready(function() {
 				method : "testcall"
 			},
 			success : function(content) {
-				$("#content").text(content);
+				$("#content").html(content);
 			}
 		});
 
@@ -40,6 +40,22 @@ $(document).ready(function() {
 			url : "server.php",
 			data : {
 				method : "load_loadingpage-template"
+			},
+			success : function(content) {
+				$("#content").html(content);
+			}
+		});
+
+		return false;
+	});
+	
+	$("button#load_loadingpageDEV-template").click(function() {
+
+		$.ajax({
+			type : "POST",
+			url : "server.php",
+			data : {
+				method : "load_loadingpageDEV-template"
 			},
 			success : function(content) {
 				$("#content").html(content);

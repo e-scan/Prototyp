@@ -44,7 +44,8 @@ class AjaxController {
 			case "testcall" :
 				
 				// Meldung als Rueckgabewert setzen
-				$result = "Einfacher AJAX-Aufruf war erfolgreich!";
+				// $result = "Einfacher AJAX-Aufruf war erfolgreich!";
+				$result = file_get_contents ( "./templates/html5test.html" );
 				
 				break;
 			
@@ -59,6 +60,13 @@ class AjaxController {
 				
 				// Template in Variable laden und als Rueckgabewert setzen
 				$result = file_get_contents ( "./templates/loadingpage.html" );
+				
+				break;
+			
+			case "load_loadingpageDEV-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/loadingpageDEV.html" );
 				
 				break;
 			
