@@ -6,85 +6,42 @@ function zoomGraphX(minDate, maxDate) {
 }
 
 function zoomMonth() {
-	var i = 0;
-	var month = maxValueDate.getMonth();
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() == month) {
-			break;
-		} else {
-			i++;
-		}
-	}
+	var start = new Date(maxValueDate.toGMTString());
+	start.setDate(1);
+	start.setHours(0);
+	start.setMinutes(0);
 
-	var start = i;
+	var end = new Date(start.toGMTString());
+	end.setMonth(start.getMonth() + 1);
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() != month) {
-			i--;
-			break;
-		} else {
-			i++;
-		}
-	}
+	zoomGraphX(start, end);
 
-	var end = i;
-
-	zoomGraphX(dates[start], dates[end]);
 }
 
 function zoomWeek() {
-	var i = 0;
-	var month = maxValueDate.getMonth();
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() == month) {
-			break;
-		} else {
-			i++;
-		}
-	}
+	var start = new Date(maxValueDate.toGMTString());
+	start.setDate(start.getDate() - start.getDay() + 1);
+	start.setHours(0);
+	start.setMinutes(0);
 
-	var start = i;
+	var end = new Date(start.toGMTString());
+	end.setDate(start.getDate() + (7 - start.getDay() + 1));
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() != month) {
-			i--;
-			break;
-		} else {
-			i++;
-		}
-	}
+	zoomGraphX(start, end);
 
-	var end = i;
-
-	zoomGraphX(dates[start], dates[end]);
 }
 
 function zoomDay() {
-	var i = 0;
-	var month = maxValueDate.getMonth();
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() == month) {
-			break;
-		} else {
-			i++;
-		}
-	}
+	var start = new Date(maxValueDate.toGMTString());
+	start.setHours(0);
+	start.setMinutes(0);
 
-	var start = i;
+	var end = new Date(start.toGMTString());
+	end.setDate(start.getDate() + 1);
 
-	while (i < dates.length) {
-		if (dates[i].getMonth() != month) {
-			i--;
-			break;
-		} else {
-			i++;
-		}
-	}
+	zoomGraphX(start, end);
 
-	var end = i;
-
-	zoomGraphX(dates[start], dates[end]);
 }

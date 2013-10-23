@@ -1,8 +1,5 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" src="js/dygraph-combined.js"></script>
-<script type="text/javascript" src="js/dygraph-extra.js"></script>
-<script type="text/javascript" src="js/dygraph-my-extras.js"></script>
 <script type="text/javascript" src="js/loadingpage.js"></script>
 </head>
 
@@ -25,7 +22,12 @@
 	</p>
 
 	<!-- here comes the file-input with progressbar etc! -->
-	<input type="file" id="files" name="file" />
+	<form name="wattage">
+		<label>Einheit des Verbrauchs:</label> <input type="radio"
+			name="wattageGroup" value="KWh" checked="checked">KW<input
+			type="radio" name="wattageGroup" value="KW">KWh
+	</form>
+	<br> <input type="file" id="files" name="file" />
 	<button onclick="abortRead();">Laden abbrechen</button>
 	<br>
 	<div id="progress_bar">

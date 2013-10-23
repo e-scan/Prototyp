@@ -86,35 +86,25 @@ function handleFileSelect(evt) {
 		 * Connect Buttons and functions.
 		 */
 		
-		$("button#zoom_month").click(function() {
-			
+		$("button#zoom_month").click(function() {		
 			zoomMonth();
-
 		});
 		
 		$("button#zoom_week").click(function() {
-			
 			zoomWeek();
-
 		});
 		
 		$("button#zoom_day").click(function() {
-			
 			zoomDay();
-
 		});
 		
 		
 		$("button#restore_position").click(function() {
-
 			g.resetZoom();
-
 		});
 
 		$("button#restore_position").click(function() {
-
 			g.resetZoom();
-
 		});
 		
 		<!-- now the logic for saving as png and svg -->
@@ -153,18 +143,35 @@ function generateGraph(result) {
 	// declared here for performance-reasons!
 	var tmp = new Array(2);
 	
-	// for all other, split into groups and push into loose
-	// and while doing that, find the maxValue
-	for (var i = 1; i < lines.length; i++) {
-
-		tmp = lines[i].split(",");
-		dates.push(new Date(tmp[0]));
-		values.push(parseFloat(tmp[1]));
-
-		// finding MaxValue
-		if (parseFloat(tmp[1]) > maxValue) {
-			maxValue = parseFloat(tmp[1]);
-			maxValueDate = new Date(tmp[0]);
+	if (document.wattage.wattageGroup[0].checked){
+		// for all other, split into groups and push into loose
+		// and while doing that, find the maxValue
+		for (var i = 1; i < lines.length; i++) {
+	
+			tmp = lines[i].split(",");
+			dates.push(new Date(tmp[0]));
+			values.push(parseFloat(tmp[1]*4));
+	
+			// finding MaxValue
+			if (parseFloat(tmp[1]*4) > maxValue) {
+				maxValue = parseFloat(tmp[1]*4);
+				maxValueDate = new Date(tmp[0]);
+			}
+		}
+	} else {
+		// for all other, split into groups and push into loose
+		// and while doing that, find the maxValue
+		for (var i = 1; i < lines.length; i++) {
+	
+			tmp = lines[i].split(",");
+			dates.push(new Date(tmp[0]));
+			values.push(parseFloat(tmp[1]));
+	
+			// finding MaxValue
+			if (parseFloat(tmp[1]) > maxValue) {
+				maxValue = parseFloat(tmp[1]);
+				maxValueDate = new Date(tmp[0]);
+			}
 		}
 	}
 
@@ -200,21 +207,18 @@ function generateGraph(result) {
 		rollPeriod : 0,
 		animatedZooms : true,
 		title : 'Lastgang',
-		ylabel : 'KWh',
+		ylabel : 'KW',
 		underlayCallback: function(canvas, area, g) {
 			
 			canvas.drawImage(img,0,0,area.w,area.h);
 			
             canvas.fillStyle = "rgba(252, 251, 194, 1.0)";
             // comment later...
-            
+
             for (var i = 0; i < values.length;) {
-            	
             	if (values[i]>=twentyPercentLine) {
-            		
             		// Found a value over 20%; seach for the end of the
 					// continuing values over 20%
-            		
             		var start = i;
             		
             		while (i < values.length && values[i] >= twentyPercentLine) {
@@ -238,7 +242,6 @@ function generateGraph(result) {
             		// No value over 20% found, jump to next!
             		i++;
             	}
-            	
             }
             
 
