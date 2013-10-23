@@ -1,9 +1,13 @@
 var progress = document.querySelector('.percent');
 
-var dates = new Array();
-var values = new Array();
+var dates;
+var values;
 
-var maxValue = 0;
+var maxValue;
+var twentyPercentLine;
+
+var img = new Image();
+img.src="data/eSCAN-Logo.png";
 
 function abortRead() {
 	reader.abort();
@@ -43,6 +47,13 @@ function handleFileSelect(evt) {
 	progress.style.width = '0%';
 	progress.textContent = '0%';
 
+	// Reset all arrays and Data!
+	dates = new Array();
+	values = new Array();
+
+	maxValue = 0;
+	twentyPercentLine = 0;
+	
 	reader = new FileReader();
 	reader.onerror = errorHandler;
 	reader.onprogress = updateProgress;
@@ -68,18 +79,6 @@ function handleFileSelect(evt) {
 		generateGraph(result);
 
 		$("button#restore_position").click(function() {
-
-			g.resetZoom();
-
-		});
-		
-		$("button#generate_png").click(function() {
-
-			g.resetZoom();
-
-		});
-		
-		$("button#generate_png").click(function() {
 
 			g.resetZoom();
 
@@ -138,7 +137,7 @@ function generateGraph(result) {
 	// this is the array dygraphs gets to draw the graphs
 	var content = new Array();
 
-	var twentyPercentLine = maxValue * 0.8;
+	twentyPercentLine = maxValue * 0.8;
 	// var twentyPercentLine=200;
 
 	// declared here for performance-reasons!
@@ -169,21 +168,18 @@ function generateGraph(result) {
 		title : 'Lastgang',
 		ylabel : 'KWh',
 		underlayCallback: function(canvas, area, g) {
-
-            canvas.fillStyle = "rgba(255, 0, 220, 0.5)";
-
-            function highlight_period(x_start, x_end) {
-              var canvas_left_x = g.toDomXCoord(x_start);
-              var canvas_right_x = g.toDomXCoord(x_end);
-              var canvas_width = canvas_right_x - canvas_left_x;
-              canvas.fillRect(canvas_left_x, area.y, canvas_width, area.h);
-            }
-
+			
+			canvas.drawImage(img,0,0,area.w,area.h);
+			
+            canvas.fillStyle = "rgba(252, 251, 194, 1.0)";
             // comment later...
             
             for (var i = 0; i < values.length;) {
             	
             	if (values[i]>=twentyPercentLine) {
+            		
+            		// Found a value over 20%; seach for the end of the
+					// continuing values over 20%
             		
             		var start = i;
             		
@@ -193,10 +189,19 @@ function generateGraph(result) {
             		
             		var end = i;
             		
-            		highlight_period(dates[start], dates[end]);
+            		/*
+					 * Now fill the area
+					 */
+                    var canvas_left_x = g.toDomXCoord(dates[start]);
+                    var canvas_right_x = g.toDomXCoord(dates[end]);
+                    var canvas_width = canvas_right_x - canvas_left_x;
+                    var canvas_y = g.toDomYCoord(maxValue);
+                    var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+                    canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
             		
             	}
             	else {
+            		// No value over 20% found, jump to next!
             		i++;
             	}
             	
