@@ -1,9 +1,12 @@
 var progress = document.querySelector('.percent');
 
+var g;
+
 var dates;
 var values;
 
 var maxValue;
+var maxValueDate;
 var twentyPercentLine;
 
 var img = new Image();
@@ -52,6 +55,7 @@ function handleFileSelect(evt) {
 	values = new Array();
 
 	maxValue = 0;
+	maxValueDate = new Date();
 	twentyPercentLine = 0;
 	
 	reader = new FileReader();
@@ -77,6 +81,35 @@ function handleFileSelect(evt) {
 		var result = e.target.result;
 
 		generateGraph(result);
+		
+		/*
+		 * Connect Buttons and functions.
+		 */
+		
+		$("button#zoom_month").click(function() {
+			
+			zoomMonth();
+
+		});
+		
+		$("button#zoom_week").click(function() {
+			
+			zoomWeek();
+
+		});
+		
+		$("button#zoom_day").click(function() {
+			
+			zoomDay();
+
+		});
+		
+		
+		$("button#restore_position").click(function() {
+
+			g.resetZoom();
+
+		});
 
 		$("button#restore_position").click(function() {
 
@@ -131,6 +164,7 @@ function generateGraph(result) {
 		// finding MaxValue
 		if (parseFloat(tmp[1]) > maxValue) {
 			maxValue = parseFloat(tmp[1]);
+			maxValueDate = new Date(tmp[0]);
 		}
 	}
 
