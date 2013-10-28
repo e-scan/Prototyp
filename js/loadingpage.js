@@ -1,4 +1,5 @@
 var progress = document.querySelector('.percent');
+var result;
 
 var g;
 
@@ -11,6 +12,16 @@ var twentyPercentLine;
 
 var img = new Image();
 img.src="data/eSCAN-Logo.png";
+
+$("input[name='wattageGroup']").change(function(e) {
+	if(result != null){
+		if ($(this).val() == 'KWh') {
+			generateGraph(result);
+		} else {
+			generateGraph(result);
+		}
+	}
+});
 
 function abortRead() {
 	reader.abort();
@@ -51,12 +62,7 @@ function handleFileSelect(evt) {
 	progress.textContent = '0%';
 
 	// Reset all arrays and Data!
-	dates = new Array();
-	values = new Array();
-
-	maxValue = 0;
-	maxValueDate = new Date();
-	twentyPercentLine = 0;
+	resetArrays();
 	
 	reader = new FileReader();
 	reader.onerror = errorHandler;
@@ -78,7 +84,7 @@ function handleFileSelect(evt) {
 				2000);
 
 		// result contains the textfile as a string
-		var result = e.target.result;
+		result = e.target.result;
 
 		generateGraph(result);
 		
@@ -88,23 +94,30 @@ function handleFileSelect(evt) {
 		
 		$("button#zoom_month").click(function() {		
 			zoomMonth();
+			resetYRange();
 		});
 		
 		$("button#zoom_week").click(function() {
 			zoomWeek();
+			resetYRange();
 		});
 		
 		$("button#zoom_day").click(function() {
 			zoomDay();
+			resetYRange();
 		});
 		
-		
-		$("button#restore_position").click(function() {
-			g.resetZoom();
+		$("button#zoom_20_max").click(function() {
+			g.updateOptions({
+				valueRange : [ twentyPercentLine, maxValue ]
+			});
 		});
 
 		$("button#restore_position").click(function() {
+			
 			g.resetZoom();
+			
+			resetYRange();
 		});
 		
 		<!-- now the logic for saving as png and svg -->
@@ -116,6 +129,10 @@ function handleFileSelect(evt) {
 
 			return false;
 		});
+		
+		$("div#graph").resize(function(e){
+			g.resize();
+		});
 
 	}
 
@@ -124,6 +141,12 @@ function handleFileSelect(evt) {
 }
 
 function generateGraph(result) {
+	
+	if (g != null) {
+		g.destroy();
+		resetArrays();
+	}
+		
 	// lines contains the textfile but splittet into single lines [array]
 	var lines = result.split('\n');
 
@@ -146,7 +169,7 @@ function generateGraph(result) {
 	if (document.wattage.wattageGroup[0].checked){
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
-		for (var i = 1; i < lines.length; i++) {
+		for (var i = 1; i < lines.length-1; i++) {
 	
 			tmp = lines[i].split(",");
 			dates.push(new Date(tmp[0]));
@@ -161,7 +184,7 @@ function generateGraph(result) {
 	} else {
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
-		for (var i = 1; i < lines.length; i++) {
+		for (var i = 1; i < lines.length-1; i++) {
 	
 			tmp = lines[i].split(",");
 			dates.push(new Date(tmp[0]));
@@ -244,8 +267,6 @@ function generateGraph(result) {
             	}
             }
             
-
-            
           },
 		// legend : 'always',
 		// showRangeSelector : true,
@@ -259,6 +280,19 @@ function generateGraph(result) {
 		},
 		labelsDivWidth : 120,
 		labelsSeparateLines : "<br/>",
-		labels : [ loose[0], loose[1], '20%', 'MaxValue' ]
+		labels : [ loose[0], loose[1], '20%', 'MaxValue' ],
+		// isZoomedIgnoreProgrammaticZoom : true
 	});
+	
+	g.resize();
+	
+}
+
+function resetArrays(){
+	dates = new Array();
+	values = new Array();
+
+	maxValue = 0;
+	maxValueDate = new Date();
+	twentyPercentLine = 0;
 }

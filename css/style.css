@@ -39,8 +39,8 @@
 }
 
 #graph {
-	<!-- resize: both; -->
-	<!-- overflow: auto; -->
+	resize: both;
+	overflow: auto;
 }
 
 #content {

@@ -2,7 +2,7 @@ function zoomGraphX(minDate, maxDate) {
 	g.updateOptions({
 		dateWindow : [ minDate, maxDate ]
 	});
-	showXDimensions(minDate, maxDate);
+
 }
 
 function zoomMonth() {
@@ -41,7 +41,15 @@ function zoomDay() {
 
 	var end = new Date(start.toGMTString());
 	end.setDate(start.getDate() + 1);
+	end.setHours(0);
+	end.setMinutes(0);
 
 	zoomGraphX(start, end);
 
+}
+
+function resetYRange() {
+	g.updateOptions({
+		valueRange : [ 0, maxValue ]
+	});
 }
