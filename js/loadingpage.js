@@ -130,10 +130,30 @@ function handleFileSelect(evt) {
 			return false;
 		});
 		
-		$("div#graph").resize(function(e){
-			g.resize();
-		});
-
+		 $("div#graph").resize(function(e){
+			 g.resize($("#graph").innerWidth()-5, $("#graph").innerHeight()-5);
+		 });
+		
+// var rtime = new Date(1, 1, 2000, 12,00,00);
+// var timeout = false;
+// var delta = 200;
+// $("div#graph").resize(function() {
+// rtime = new Date();
+// if (timeout == false) {
+// timeout = true;
+// setTimeout(resizeend, delta);
+// }
+// });
+//
+// function resizeend() {
+// if (new Date() - rtime < delta) {
+// setTimeout(resizeend, delta);
+// } else {
+// timeout = false;
+// g.resize();
+// }
+// }
+//
 	}
 
 	// Read in the image file as a binary string.
@@ -223,7 +243,7 @@ function generateGraph(result) {
     // var context = canvas.getContext("2d");
     // context.drawImage("/data/eScan-Logo.jpg",10,10);
 	
-	g = new Dygraph(document.getElementById("graph"), content, {
+	g = new Dygraph(document.getElementById("innerGraph"), content, {
 		// customBars: true,
 		valueRange : yRange,
 		// showRoller: true,
