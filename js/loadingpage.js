@@ -13,14 +13,73 @@ var twentyPercentLine;
 var img = new Image();
 img.src="data/eSCAN-Logo.png";
 
+$(document).ready(function(e) {
+	
+	// get the "combobox" for the providers
+	var select = document.getElementById("providers");
+	
+	/*
+	 * Now send an ajax-request to a php-script to get all providers (later on
+	 * from database!)
+	 */
+    $.ajax({
+        type: "POST",
+        url: "server.php",
+		data : {
+			method : "getProviders"
+		},
+        success: function(data){
+        	
+        	// the array transformed back to json
+        	var providers = JSON.parse(data);
+        	
+        	// and add each provider (incl. "nil") to the select-form as option
+        	jQuery.each(providers, function(i, val) {
+        		select.options[select.options.length] = new Option(val, i);
+        	});
+       
+        }
+    });
+
+}
+);
+
 $("input[name='wattageGroup']").change(function(e) {
 	if(result != null){
-		if ($(this).val() == 'KWh') {
-			generateGraph(result);
-		} else {
-			generateGraph(result);
-		}
+		// doesnt work properly yet!
+		// var dateWindowSafe = g.getOption("dateWindow");
+		generateGraph(result);
+		// g.updateOptions({
+		// dateWindow : dateWindowSafe
+		// });
 	}
+});
+
+$("select#providers").change(function(e) {
+	var e2 = document.getElementById("providers");
+	// use value for "WR" or text for "Wernigerode"
+	var strProvider = e2.options[e2.selectedIndex].value;
+	
+	if (g != null) {
+		
+	    $.ajax({
+	        type: "POST",
+	        url: "server.php",
+			data : {
+				provider : strProvider,
+				method : "getHLZF"
+			},
+	        success: function(data){
+	        	
+	        	var result = JSON.parse(data);
+	        	
+	        	alert("Beginn: "+result.spring.begin+"\nEnd: "+result.spring.end);
+	       
+	        }
+	    });
+		
+	}
+	
 });
 
 function abortRead() {
@@ -133,7 +192,7 @@ function handleFileSelect(evt) {
 		 $("div#graph").resize(function(e){
 			 g.resize($("#graph").innerWidth()-5, $("#graph").innerHeight()-5);
 		 });
-		
+		 
 // var rtime = new Date(1, 1, 2000, 12,00,00);
 // var timeout = false;
 // var delta = 200;

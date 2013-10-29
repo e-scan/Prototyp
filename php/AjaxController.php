@@ -1,4 +1,5 @@
 <?php
+include_once 'HLZFFunctions.php';
 class AjaxController {
 	
 	/**
@@ -74,6 +75,31 @@ class AjaxController {
 				
 				// Template in Variable laden und als Rueckgabewert setzen
 				$result = file_get_contents ( "./templates/monitoring.html" );
+				
+				break;
+			
+			case "getProviders" :
+				
+				$ret = Array (
+						"nil" => "- Keine Auswahl",
+						"WR" => "Stadtwerke Werniogerode",
+						"HBS" => "Halberstadtwerke" 
+				);
+				// $ret = "Hello World!";
+				
+				$result = json_encode ( $ret );
+				// $result = $ret;
+				
+				break;
+			
+			case "getHLZF" :
+				
+				$provider = $_POST ['provider'];
+				
+				$result = json_encode ( getHLZF ( $provider ) );
+				
+				// $result = json_encode ( $ret );
+				// $result = $ret;
 				
 				break;
 			
