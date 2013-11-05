@@ -1,5 +1,8 @@
 var progress = document.querySelector('.percent');
 var result;
+var dayInHLZF;
+
+var hlzf = null;
 
 var g;
 
@@ -40,6 +43,99 @@ $(document).ready(function(e) {
        
         }
     });
+    
+    $("select#providers").change(function(e) {
+    	var e2 = document.getElementById("providers");
+    	// use value for "WR" or text for "Wernigerode"
+    	var strProvider = e2.options[e2.selectedIndex].value;
+    	
+        $.ajax({
+            type: "POST",
+            url: "server.php",
+    		data : {
+    			provider : strProvider,
+    			method : "getHLZF"
+    		},
+            success: function(data){
+            	
+            	hlzf = JSON.parse(data);;
+            	
+    		    /*
+				 * Generate dayInHLZF for later checking!
+				 */
+            	
+    		    /*
+				 * IMPORTAMT: because of conversion- and performance-reasons,
+				 * will the time not be corresponding to the UTC-time "12:00",
+				 * but "12:0"!!!! (handle hour and minutes as integers separatly!
+				 */
+            	dayInHLZF = new Array();
+		    	
+		    	for (var hour = 0; hour < 24; hour++) {
+		    		
+		    		var isInHLZF = new Array();
+		    		isInHLZF['0'] = false;
+		    		isInHLZF['15'] = false;
+		    		isInHLZF['30'] = false;
+		    		isInHLZF['45'] = false;
+		    		
+		    		// Look through all time-windows of the HLZF
+		    		for (var i = 0; i < hlzf.spring.length; i++) {
+		    			
+		    			var hlzfHourBegin = parseInt(hlzf.spring[i].begin.split(':')[0]);
+		    			var hlzfHourEnd = parseInt(hlzf.spring[i].end.split(':')[0]);
+		    			
+		    			var hlzfMinuteBegin = parseInt(hlzf.spring[i].begin.split(':')[1]);
+		    			var hlzfMinuteEnd = parseInt(hlzf.spring[i].end.split(':')[1]);
+		    			
+		    			if (hour > hlzfHourBegin && hour < hlzfHourEnd) {
+		    				// This hour is within the HLZF, no need for
+							// scanning minute, because the edges (hour) have to
+							// be scanned, not inside the hours!
+		    				isInHLZF['0'] = true;
+			    			isInHLZF['15'] = true;
+			    			isInHLZF['30'] = true;
+			    			isInHLZF['45'] = true;
+			    			
+		    			} else if (hour == hlzfHourBegin) {
+		    				// the hour is exactly at the beginning of the hlzf
+		    				if (0 >= hlzfMinuteBegin)
+		    					isInHLZF['0'] = true;
+		    				if (15 >= hlzfMinuteBegin)
+			    				isInHLZF['15'] = true;
+		    				if (30 >= hlzfMinuteBegin)
+			    				isInHLZF['30'] = true;
+		    				if (45 >= hlzfMinuteBegin)
+			    				isInHLZF['45'] = true;
+		    				
+		    			} else if (hour == hlzfHourEnd) {
+		    				// the hour is exactly at the end of the hlzf
+		    				if (0 < hlzfMinuteEnd)
+		    					isInHLZF['0'] = true;
+		    				if (15 < hlzfMinuteEnd)
+			    				isInHLZF['15'] = true;
+		    				if (30 < hlzfMinuteEnd)
+			    				isInHLZF['30'] = true;
+		    				if (45 < hlzfMinuteEnd)
+			    				isInHLZF['45'] = true;
+		    			}
+		    		}
+		    		
+				    dayInHLZF[hour+':'+'0'] = isInHLZF['0'];
+				    dayInHLZF[hour+':'+'15'] = isInHLZF['15'];
+				    dayInHLZF[hour+':'+'30'] = isInHLZF['30'];
+				    dayInHLZF[hour+':'+'45'] = isInHLZF['45'];
+		    		
+		    	}
+		    	
+// alert(dayInHLZF['10:15']);
+// alert(hlzf.spring[0].begin);
+           
+            }
+        });
+    		
+    	
+    });
 
 }
 );
@@ -53,33 +149,6 @@ $("input[name='wattageGroup']").change(function(e) {
 		// dateWindow : dateWindowSafe
 		// });
 	}
-});
-
-$("select#providers").change(function(e) {
-	var e2 = document.getElementById("providers");
-	// use value for "WR" or text for "Wernigerode"
-	var strProvider = e2.options[e2.selectedIndex].value;
-	
-	if (g != null) {
-		
-	    $.ajax({
-	        type: "POST",
-	        url: "server.php",
-			data : {
-				provider : strProvider,
-				method : "getHLZF"
-			},
-	        success: function(data){
-	        	
-	        	var result = JSON.parse(data);
-	        	
-	        	alert("Beginn: "+result.spring.begin+"\nEnd: "+result.spring.end);
-	       
-	        }
-	    });
-		
-	}
-	
 });
 
 function abortRead() {
@@ -192,27 +261,7 @@ function handleFileSelect(evt) {
 		 $("div#graph").resize(function(e){
 			 g.resize($("#graph").innerWidth()-5, $("#graph").innerHeight()-5);
 		 });
-		 
-// var rtime = new Date(1, 1, 2000, 12,00,00);
-// var timeout = false;
-// var delta = 200;
-// $("div#graph").resize(function() {
-// rtime = new Date();
-// if (timeout == false) {
-// timeout = true;
-// setTimeout(resizeend, delta);
-// }
-// });
-//
-// function resizeend() {
-// if (new Date() - rtime < delta) {
-// setTimeout(resizeend, delta);
-// } else {
-// timeout = false;
-// g.resize();
-// }
-// }
-//
+
 	}
 
 	// Read in the image file as a binary string.
@@ -313,38 +362,84 @@ function generateGraph(result) {
 		underlayCallback: function(canvas, area, g) {
 			
 			canvas.drawImage(img,0,0,area.w,area.h);
-			
-            canvas.fillStyle = "rgba(252, 251, 194, 1.0)";
-            // comment later...
 
-            for (var i = 0; i < values.length;) {
-            	if (values[i]>=twentyPercentLine) {
-            		// Found a value over 20%; seach for the end of the
-					// continuing values over 20%
-            		var start = i;
-            		
-            		while (i < values.length && values[i] >= twentyPercentLine) {
-            			i++;
-            		}
-            		
-            		var end = i;
-            		
-            		/*
-					 * Now fill the area
-					 */
-                    var canvas_left_x = g.toDomXCoord(dates[start]);
-                    var canvas_right_x = g.toDomXCoord(dates[end]);
-                    var canvas_width = canvas_right_x - canvas_left_x;
-                    var canvas_y = g.toDomYCoord(maxValue);
-                    var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
-                    canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
-            		
-            	}
-            	else {
-            		// No value over 20% found, jump to next!
-            		i++;
-            	}
-            }
+		    canvas.fillStyle = "rgba(252, 251, 194, 1.0)";
+		    // comment later...
+		    
+		    if (hlzf != null && hlzf != "nil") {
+
+		    	/*
+				 * Now draw marks if necessary!
+				 */
+			    for (var i = 0; i < values.length;) {
+	
+			    	if (values[i]>=twentyPercentLine && dayInHLZF[dates[i].getHours()+':'+dates[i].getMinutes()]) {
+			    		// Found a value over 20%; seach for the end of the
+						// continuing values over 20%
+			    		var start = i;
+			    		
+			    		while (values[i]>=twentyPercentLine && dayInHLZF[dates[i].getHours()+':'+dates[i].getMinutes()]) {
+			    			i++;
+			    		}
+			    		
+			    		var end = i;
+			    		
+			    		/*
+						 * Now fill the area
+						 */
+			            var canvas_left_x = g.toDomXCoord(dates[start]);
+			            var canvas_right_x = g.toDomXCoord(dates[end]);
+			            var canvas_width = canvas_right_x - canvas_left_x;
+			            var canvas_y = g.toDomYCoord(maxValue);
+			            var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+			            canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
+			    		
+			    	}
+			    	else {
+			    		// No value over 20% found, jump to next!
+			    		i++;
+			    	}
+			    }
+
+		    	// for (var i = 0; i < hlzf.spring.length; i++) {
+		    	// alert("Beginn: "+hlzf.spring[i].begin+"\nEnd:
+				// "+hlzf.spring[i].end);
+		    	// }
+		    	
+		    }
+		    else {
+		    	
+			    for (var i = 0; i < values.length;) {
+			    	
+			    	if (values[i]>=twentyPercentLine) {
+			    		// Found a value over 20%; seach for the end of the
+						// continuing values over 20%
+			    		var start = i;
+			    		
+			    		while (i < values.length && values[i] >= twentyPercentLine) {
+			    			i++;
+			    		}
+			    		
+			    		var end = i;
+			    		
+			    		/*
+						 * Now fill the area
+						 */
+			            var canvas_left_x = g.toDomXCoord(dates[start]);
+			            var canvas_right_x = g.toDomXCoord(dates[end]);
+			            var canvas_width = canvas_right_x - canvas_left_x;
+			            var canvas_y = g.toDomYCoord(maxValue);
+			            var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+			            canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
+			    		
+			    	}
+			    	else {
+			    		// No value over 20% found, jump to next!
+			    		i++;
+			    	}
+			    }
+		    
+		    }
             
           },
 		// legend : 'always',
