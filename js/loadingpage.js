@@ -2,9 +2,13 @@ var progress = document.querySelector('.percent');
 var result;
 var daysInHLZF;
 
+var content;
+
+var annotations = new Array();
+
 var hlzf = null;
 
-var g;
+var g = null;
 
 var dates;
 var values;
@@ -12,6 +16,8 @@ var values;
 var maxValue;
 var maxValueDate;
 var twentyPercentLine;
+
+var yRange;
 
 var annotations;
 
@@ -24,6 +30,8 @@ img.src = "data/eSCAN-Logo.png";
 var showHLZF = false;
 
 $(document).ready(function(e) {
+    
+    resetArrays();
 
     // get the "combobox" for the providers
     var select = document.getElementById("providers");
@@ -67,88 +75,94 @@ $(document).ready(function(e) {
 	    success : function(data) {
 
 		hlzf = JSON.parse(data);
-		;
 
-		/*
-		 * Generate daysInHLZF for later checking!
-		 */
+		if (hlzf != "nil") {
 
-		/*
-		 * IMPORTAMT: because of conversion- and performance-reasons, will the time not be corresponding to the UTC-time "12:00", but "12:0"!!!! (handle hour and minutes as integers separatly!
-		 */
-		daysInHLZF = new Array(4);
-		daysInHLZF["spring"] = new Array();
-		daysInHLZF["summer"] = new Array();
-		daysInHLZF["autum"] = new Array();
-		daysInHLZF["winter"] = new Array();
+		    /*
+		     * Generate daysInHLZF for later checking!
+		     */
 
-		for ( var season in daysInHLZF) {
+		    /*
+		     * IMPORTAMT: because of conversion- and performance-reasons, will the time not be corresponding to the UTC-time "12:00", but "12:0"!!!! (handle hour and minutes as integers separatly!
+		     */
+		    daysInHLZF = new Array(4);
+		    daysInHLZF["spring"] = new Array();
+		    daysInHLZF["summer"] = new Array();
+		    daysInHLZF["autum"] = new Array();
+		    daysInHLZF["winter"] = new Array();
 
-		    for (var hour = 0; hour < 24; hour++) {
+		    for ( var season in daysInHLZF) {
 
-			var isInHLZF = new Array();
-			isInHLZF['0'] = false;
-			isInHLZF['15'] = false;
-			isInHLZF['30'] = false;
-			isInHLZF['45'] = false;
+			for (var hour = 0; hour < 24; hour++) {
 
-			// Look through
-			// all
-			// time-windows
-			// of the HLZF
-			for (var i = 0; i < hlzf[season].length; i++) {
+			    var isInHLZF = new Array();
+			    isInHLZF['0'] = false;
+			    isInHLZF['15'] = false;
+			    isInHLZF['30'] = false;
+			    isInHLZF['45'] = false;
 
-			    var hlzfHourBegin = parseInt(hlzf[season][i].begin.split(':')[0]);
-			    var hlzfHourEnd = parseInt(hlzf[season][i].end.split(':')[0]);
+			    // Look through
+			    // all
+			    // time-windows
+			    // of the HLZF
+			    for (var i = 0; i < hlzf[season].length; i++) {
 
-			    var hlzfMinuteBegin = parseInt(hlzf[season][i].begin.split(':')[1]);
-			    var hlzfMinuteEnd = parseInt(hlzf[season][i].end.split(':')[1]);
+				var hlzfHourBegin = parseInt(hlzf[season][i].begin.split(':')[0]);
+				var hlzfHourEnd = parseInt(hlzf[season][i].end.split(':')[0]);
 
-			    if (hour > hlzfHourBegin && hour < hlzfHourEnd) {
-				/*
-				 * This hour is within the HLZF, no need for scanning minute, because the edges (hour) have to be scanned, not inside the hours!
-				 */
-				isInHLZF['0'] = true;
-				isInHLZF['15'] = true;
-				isInHLZF['30'] = true;
-				isInHLZF['45'] = true;
+				var hlzfMinuteBegin = parseInt(hlzf[season][i].begin.split(':')[1]);
+				var hlzfMinuteEnd = parseInt(hlzf[season][i].end.split(':')[1]);
 
-			    } else if (hour == hlzfHourBegin) {
-				/*
-				 * the hour is exactly at the beginning of the hlzf
-				 */
-				if (0 >= hlzfMinuteBegin)
+				if (hour > hlzfHourBegin && hour < hlzfHourEnd) {
+				    /*
+				     * This hour is within the HLZF, no need for scanning minute, because the edges (hour) have to be scanned, not inside the hours!
+				     */
 				    isInHLZF['0'] = true;
-				if (15 >= hlzfMinuteBegin)
 				    isInHLZF['15'] = true;
-				if (30 >= hlzfMinuteBegin)
 				    isInHLZF['30'] = true;
-				if (45 >= hlzfMinuteBegin)
 				    isInHLZF['45'] = true;
 
-			    } else if (hour == hlzfHourEnd) {
-				/*
-				 * the hour is exactly at the end of the hlzf
-				 */
-				if (0 < hlzfMinuteEnd)
-				    isInHLZF['0'] = true;
-				if (15 < hlzfMinuteEnd)
-				    isInHLZF['15'] = true;
-				if (30 < hlzfMinuteEnd)
-				    isInHLZF['30'] = true;
-				if (45 < hlzfMinuteEnd)
-				    isInHLZF['45'] = true;
+				} else if (hour == hlzfHourBegin) {
+				    /*
+				     * the hour is exactly at the beginning of the hlzf
+				     */
+				    if (0 >= hlzfMinuteBegin)
+					isInHLZF['0'] = true;
+				    if (15 >= hlzfMinuteBegin)
+					isInHLZF['15'] = true;
+				    if (30 >= hlzfMinuteBegin)
+					isInHLZF['30'] = true;
+				    if (45 >= hlzfMinuteBegin)
+					isInHLZF['45'] = true;
+
+				} else if (hour == hlzfHourEnd) {
+				    /*
+				     * the hour is exactly at the end of the hlzf
+				     */
+				    if (0 < hlzfMinuteEnd)
+					isInHLZF['0'] = true;
+				    if (15 < hlzfMinuteEnd)
+					isInHLZF['15'] = true;
+				    if (30 < hlzfMinuteEnd)
+					isInHLZF['30'] = true;
+				    if (45 < hlzfMinuteEnd)
+					isInHLZF['45'] = true;
+				}
 			    }
-			}
 
-			daysInHLZF[season][hour + ':' + '0'] = isInHLZF['0'];
-			daysInHLZF[season][hour + ':' + '15'] = isInHLZF['15'];
-			daysInHLZF[season][hour + ':' + '30'] = isInHLZF['30'];
-			daysInHLZF[season][hour + ':' + '45'] = isInHLZF['45'];
+			    daysInHLZF[season][hour + ':' + '0'] = isInHLZF['0'];
+			    daysInHLZF[season][hour + ':' + '15'] = isInHLZF['15'];
+			    daysInHLZF[season][hour + ':' + '30'] = isInHLZF['30'];
+			    daysInHLZF[season][hour + ':' + '45'] = isInHLZF['45'];
+
+			}
 
 		    }
 
 		}
+
+		if (values != null)
+		    drawGraph();
 
 	    }
 	});
@@ -354,7 +368,7 @@ function generateGraph(result) {
     }
 
     // this is the array dygraphs gets to draw the graphs
-    var content = new Array();
+    content = new Array();
 
     twentyPercentLine = maxValue * 0.8;
     // var twentyPercentLine=200;
@@ -371,12 +385,17 @@ function generateGraph(result) {
 	content.push(tmp);
     }
 
-    var yRange = [ 0, maxValue * 1.1 ];
+    yRange = [ 0, maxValue * 1.1 ];
 
     // var canvas = document.getElementById("graph");
     // var context = canvas.getContext("2d");
     // context.drawImage("/data/eScan-Logo.jpg",10,10);
 
+    drawGraph();
+
+}
+
+function drawGraph() {
     g = new Dygraph(document.getElementById("innerGraph"), content, {
 	// customBars: true,
 	valueRange : yRange,
@@ -386,7 +405,7 @@ function generateGraph(result) {
 	title : 'Lastgang',
 	ylabel : 'KW',
 	zoomCallback : function(minDate, maxDate, yRange) {
-	    //TODO: set minima and maxima!
+	    // TODO: set minima and maxima!
 	},
 	underlayCallback : function(canvas, area, g) {
 
@@ -436,8 +455,7 @@ function generateGraph(result) {
 		// "+hlzf.spring[i].end);
 		// }
 
-	    }
-	    if (hlzf != null && hlzf != "nil") {
+	    } else if (hlzf != null && hlzf != "nil") {
 
 		/*
 		 * Now draw marks if necessary!
@@ -451,11 +469,27 @@ function generateGraph(result) {
 			// continuing values over 20%
 			var start = i;
 
+			annotations.push({
+			    series : 'MaxValue',
+			    x : Date.parse(dates[start]),
+			    shortText : "!",
+			    text : 'Anfang',
+			// cssClass:
+			});
+
 			while (values[i] >= twentyPercentLine && daysInHLZF[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
 			    i++;
 			}
 
-			var end = i;
+			var end = i - 1;
+
+			annotations.push({
+			    series : 'MaxValue',
+			    x : Date.parse(dates[end]),
+			    shortText : "!",
+			    text : 'Ende',
+			// cssClass:
+			});
 
 			/*
 			 * Now fill the area
@@ -472,11 +506,6 @@ function generateGraph(result) {
 			i++;
 		    }
 		}
-
-		// for (var i = 0; i < hlzf.spring.length; i++) {
-		// alert("Beginn: "+hlzf.spring[i].begin+"\nEnd:
-		// "+hlzf.spring[i].end);
-		// }
 
 	    } else {
 
@@ -523,27 +552,16 @@ function generateGraph(result) {
 	},
 	labelsDivWidth : 120,
 	labelsSeparateLines : "<br/>",
-	labels : [ loose[0], loose[1], '20%', 'MaxValue' ],
+	labels : [ 'Datum', 'Verbrauch', '20%', 'MaxValue' ],
     // isZoomedIgnoreProgrammaticZoom : true
     });
 
-    // annotations = new Array();
-    //    
-    // for (var i = 0; i < values.length; i++) {
-    // if (values[i] >= twentyPercentLine) {
-    // annotations.push( {
-    // series: 'Verbrauch',
-    // x: date[i],
-    // shortText: "!",
-    // text: 'Zu hoch!'
-    // } );
-    // }
-    // }
-    //
-    // g.setAnnotations(annotations);
+    if (hlzf != 'nil' && !showHLZF)
+	g.setAnnotations(annotations);
+    else
+	g.setAnnotations(new Array());
 
     g.resize();
-
 }
 
 function resetArrays() {
