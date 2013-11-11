@@ -1,5 +1,5 @@
 function zoomGraphX(minDate, maxDate) {
-	g.updateOptions({
+	graph.updateOptions({
 		dateWindow : [ minDate, maxDate ]
 	});
 
@@ -49,7 +49,7 @@ function zoomDay() {
 }
 
 function resetYRange() {
-	g.updateOptions({
+	graph.updateOptions({
 		valueRange : [ 0, maxValue ]
 	});
 }

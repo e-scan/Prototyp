@@ -1,37 +1,88 @@
+/**
+ * @class loadingpage
+ * @brief Here all JavaScript-functions directly related to the loadingpage-templatea are implemented.
+ * @author fao
+ * @date 23/11/8
+ */
+/// Progress (0-100) for the progress-bar when "uploading"
 var progress = document.querySelector('.percent');
-var result;
-var daysInHLZF;
 
-var content;
+/// Result from File
+var resultFromFile;
 
+/// one day for each of the 4 seasons with 15min-dates and true/false (is critical or not)
+/// an array of array: first seasons (spring, summer...) and second associative arrays begin-end and the times (1-*)
+var hlzfProcessed;
+
+/// this is the array dygraphs gets to draw the graphs; containing dates, and values for each line
+var contentForGraph;
+
+/// an array of annotations if wished, empty if not (not null!)
 var annotations = new Array();
 
-var hlzf = null;
+/// hlzfFromDB that comes from a php-script and ultimately a db
+var hlzfFromDB = null;
 
-var g = null;
+/// the graph
+var graph = null;
 
+/// contains all dates, for easier and faster use instead of getting dates from graph
 var dates;
+
+/// contains all values parsed to float
 var values;
 
+/// contains the highest value (peak) of all values
 var maxValue;
+
+/// contains the related date for maxValue
 var maxValueDate;
+
+/// one value (float) describing the highness of the twentyPercentLine
 var twentyPercentLine;
 
-var yRange;
+/// defines what values are vertikally shown (start/end)
+var yRangeOfGraph;
 
-var annotations;
-
-var img = new Image();
-img.src = "data/eSCAN-Logo.png";
+/// contains the background-Image for the graph
+var backgroundImageGraph = new Image();
+backgroundImageGraph.src = "data/eSCAN-Logo.png";
 
 /*
  * DEBUG
  */
 var showHLZF = false;
 
+/**
+ * @brief The inner function is called when the document is loaded completely
+ */
 $(document).ready(function(e) {
-    
+    /*
+     * Here all necessary things are done so that all buttons and functions are ready for user-use!
+     */
+
+    // reset all arrays if the template is realoaded and some things are still in the cache
     resetArrays();
+
+    readyProviders();
+
+    /*
+     * Add function to the wattageGroup-Listener
+     */
+    $("input[name='wattageGroup']").change(function(e) {
+	if (resultFromFile != null) {
+	    generateGraph(resultFromFile);
+	}
+    });
+
+});
+
+/**
+ * @brief Makes the use of selecting a Provider possible
+ * 
+ * Fetches all known Providers from DB and add's them to the Select and registers an listener-function that processes the hlzfFromDB into hlzfProcessed
+ */
+function readyProviders() {
 
     // get the "combobox" for the providers
     var select = document.getElementById("providers");
@@ -50,8 +101,7 @@ $(document).ready(function(e) {
 	    // the array transformed back to json
 	    var providers = JSON.parse(data);
 
-	    // and add each provider (incl. "nil") to
-	    // the select-form as option
+	    // and add each provider (incl. "nil") to the select-form as option
 	    jQuery.each(providers, function(i, val) {
 		select.options[select.options.length] = new Option(val, i);
 	    });
@@ -59,12 +109,16 @@ $(document).ready(function(e) {
 	}
     });
 
+    /*
+     * Add the function below to the select as a listener!
+     */
     $("select#providers").change(function(e) {
-	var e2 = document.getElementById("providers");
-	// use value for "WR" or text for
-	// "Wernigerode"
-	var strProvider = e2.options[e2.selectedIndex].value;
+	// use value for "WR" or text for "Wernigerode"
+	var strProvider = select.options[select.selectedIndex].value;
 
+	/*
+	 * Send the selected Provider (eg. WR) and receive the hlzf if correctly defined, else "nil" (string)
+	 */
 	$.ajax({
 	    type : "POST",
 	    url : "server.php",
@@ -74,24 +128,27 @@ $(document).ready(function(e) {
 	    },
 	    success : function(data) {
 
-		hlzf = JSON.parse(data);
+		/*
+		 * If ready, process the date
+		 */
+		hlzfFromDB = JSON.parse(data);
 
-		if (hlzf != "nil") {
+		if (hlzfFromDB != "nil") {
 
 		    /*
-		     * Generate daysInHLZF for later checking!
+		     * Generate hlzfProcessed for later checking!
 		     */
 
 		    /*
 		     * IMPORTAMT: because of conversion- and performance-reasons, will the time not be corresponding to the UTC-time "12:00", but "12:0"!!!! (handle hour and minutes as integers separatly!
 		     */
-		    daysInHLZF = new Array(4);
-		    daysInHLZF["spring"] = new Array();
-		    daysInHLZF["summer"] = new Array();
-		    daysInHLZF["autum"] = new Array();
-		    daysInHLZF["winter"] = new Array();
+		    hlzfProcessed = new Array(4);
+		    hlzfProcessed["spring"] = new Array();
+		    hlzfProcessed["summer"] = new Array();
+		    hlzfProcessed["autum"] = new Array();
+		    hlzfProcessed["winter"] = new Array();
 
-		    for ( var season in daysInHLZF) {
+		    for ( var season in hlzfProcessed) {
 
 			for (var hour = 0; hour < 24; hour++) {
 
@@ -105,13 +162,13 @@ $(document).ready(function(e) {
 			    // all
 			    // time-windows
 			    // of the HLZF
-			    for (var i = 0; i < hlzf[season].length; i++) {
+			    for (var i = 0; i < hlzfFromDB[season].length; i++) {
 
-				var hlzfHourBegin = parseInt(hlzf[season][i].begin.split(':')[0]);
-				var hlzfHourEnd = parseInt(hlzf[season][i].end.split(':')[0]);
+				var hlzfHourBegin = parseInt(hlzfFromDB[season][i].begin.split(':')[0]);
+				var hlzfHourEnd = parseInt(hlzfFromDB[season][i].end.split(':')[0]);
 
-				var hlzfMinuteBegin = parseInt(hlzf[season][i].begin.split(':')[1]);
-				var hlzfMinuteEnd = parseInt(hlzf[season][i].end.split(':')[1]);
+				var hlzfMinuteBegin = parseInt(hlzfFromDB[season][i].begin.split(':')[1]);
+				var hlzfMinuteEnd = parseInt(hlzfFromDB[season][i].end.split(':')[1]);
 
 				if (hour > hlzfHourBegin && hour < hlzfHourEnd) {
 				    /*
@@ -124,7 +181,7 @@ $(document).ready(function(e) {
 
 				} else if (hour == hlzfHourBegin) {
 				    /*
-				     * the hour is exactly at the beginning of the hlzf
+				     * the hour is exactly at the beginning of the hlzfFromDB
 				     */
 				    if (0 >= hlzfMinuteBegin)
 					isInHLZF['0'] = true;
@@ -137,7 +194,7 @@ $(document).ready(function(e) {
 
 				} else if (hour == hlzfHourEnd) {
 				    /*
-				     * the hour is exactly at the end of the hlzf
+				     * the hour is exactly at the end of the hlzfFromDB
 				     */
 				    if (0 < hlzfMinuteEnd)
 					isInHLZF['0'] = true;
@@ -150,10 +207,10 @@ $(document).ready(function(e) {
 				}
 			    }
 
-			    daysInHLZF[season][hour + ':' + '0'] = isInHLZF['0'];
-			    daysInHLZF[season][hour + ':' + '15'] = isInHLZF['15'];
-			    daysInHLZF[season][hour + ':' + '30'] = isInHLZF['30'];
-			    daysInHLZF[season][hour + ':' + '45'] = isInHLZF['45'];
+			    hlzfProcessed[season][hour + ':' + '0'] = isInHLZF['0'];
+			    hlzfProcessed[season][hour + ':' + '15'] = isInHLZF['15'];
+			    hlzfProcessed[season][hour + ':' + '30'] = isInHLZF['30'];
+			    hlzfProcessed[season][hour + ':' + '45'] = isInHLZF['45'];
 
 			}
 
@@ -161,6 +218,7 @@ $(document).ready(function(e) {
 
 		}
 
+		// redraw the graph if it has been drawn yet (to show the markings and annotations if wanted
 		if (values != null)
 		    drawGraph();
 
@@ -169,8 +227,14 @@ $(document).ready(function(e) {
 
     });
 
-});
+}
 
+/**
+ * @brief Returns the Sesons that the given month is in
+ * @param month
+ *                The Month as a int
+ * @returns {String} The season ("Spring", "Summer", "autum", "Winter"
+ */
 function getSeason(month) {
     var season = "spring";
     if (month == 5 || month == 6 || month == 7)
@@ -182,22 +246,19 @@ function getSeason(month) {
     return season;
 }
 
-$("input[name='wattageGroup']").change(function(e) {
-    if (result != null) {
-	// doesnt work properly yet!
-	// var dateWindowSafe = g.getOption("dateWindow");
-	generateGraph(result);
-	// g.updateOptions({
-	// dateWindow : dateWindowSafe
-	// });
-    }
-});
-
+/**
+ * @brief Abording the reading-process of the local file containing the "Lastgang"
+ */
 function abortRead() {
     reader.abort();
     alert("reading aborted!");
 }
 
+/**
+ * @brief Handles the different Errors that can occur when trying to read a file through the file-select
+ * @param evt
+ *                The Event that happened
+ */
 function errorHandler(evt) {
     switch (evt.target.error.code) {
     case evt.target.error.NOT_FOUND_ERR:
@@ -214,6 +275,11 @@ function errorHandler(evt) {
     ;
 }
 
+/**
+ * @brief Updates the progress-bar when reading a "Lastgang"
+ * @param evt
+ *                the Event that happened
+ */
 function updateProgress(evt) {
     // evt is an ProgressEvent.
     if (evt.lengthComputable) {
@@ -226,6 +292,11 @@ function updateProgress(evt) {
     }
 }
 
+/**
+ * Is called when a file is chosen for 'uploading' ("Lastgang")
+ * 
+ * @param evt
+ */
 function handleFileSelect(evt) {
     // Reset progress indicator on new file selection.
     progress.style.width = '0%';
@@ -238,29 +309,37 @@ function handleFileSelect(evt) {
     reader.onerror = errorHandler;
     reader.onprogress = updateProgress;
 
+    /**
+     * @brief Is called when the reading-process is to be aborted
+     */
     reader.onabort = function(e) {
 	alert('File read cancelled');
     };
 
+    /**
+     * @brief Is called when the reading-process is started
+     */
     reader.onloadstart = function(e) {
 	document.getElementById('progress_bar').className = 'loading';
     };
 
+    /**
+     * @brief Is called when the file is completely loaded
+     */
     reader.onload = function(e) {
 	// Ensure that the progress bar displays 100% at the end.
 	progress.style.width = '100%';
 	progress.textContent = '100%';
 	setTimeout("document.getElementById('progress_bar').className='';", 2000);
 
-	// result contains the textfile as a string
-	result = e.target.result;
+	// resultFromFile contains the textfile as a string
+	resultFromFile = e.target.result;
 
-	generateGraph(result);
+	generateGraph(resultFromFile);
 
 	/*
 	 * Connect Buttons and functions.
 	 */
-
 	$("button#zoom_month").click(function() {
 	    zoomMonth();
 	    resetYRange();
@@ -277,14 +356,14 @@ function handleFileSelect(evt) {
 	});
 
 	$("button#zoom_20_max").click(function() {
-	    g.updateOptions({
+	    graph.updateOptions({
 		valueRange : [ twentyPercentLine, maxValue ]
 	    });
 	});
 
 	$("button#restore_position").click(function() {
 
-	    g.resetZoom();
+	    graph.resetZoom();
 
 	    resetYRange();
 	});
@@ -294,13 +373,13 @@ function handleFileSelect(evt) {
 	$("button#generate_png").click(function() {
 
 	    var png = document.getElementById('graph_png');
-	    Dygraph.Export.asPNG(g, png);
+	    Dygraph.Export.asPNG(graph, png);
 
 	    return false;
 	});
 
 	$("div#graph").resize(function(e) {
-	    g.resize($("#graph").innerWidth() - 5, $("#graph").innerHeight() - 5);
+	    graph.resize($("#graph").innerWidth() - 5, $("#graph").innerHeight() - 5);
 	});
 
     }
@@ -309,15 +388,21 @@ function handleFileSelect(evt) {
     reader.readAsBinaryString(evt.target.files[0]);
 }
 
-function generateGraph(result) {
+/**
+ * @brief Is called when the "Lastgang" is read and can be processed!
+ * @param resultFromFile
+ *                The Result from reading the file
+ */
+function generateGraph(resultFromFile) {
 
-    if (g != null) {
-	g.destroy();
+    // destroy graph and reset if there is old stuff in cache
+    if (graph != null) {
+	graph.destroy();
 	resetArrays();
     }
 
     // lines contains the textfile but splittet into single lines [array]
-    var lines = result.split('\n');
+    var lines = resultFromFile.split('\n');
 
     // loose contains lines but date and value are separated [array]
     var loose = new Array();
@@ -367,54 +452,55 @@ function generateGraph(result) {
 	}
     }
 
-    // this is the array dygraphs gets to draw the graphs
-    content = new Array();
+    // reset array
+    contentForGraph = new Array();
 
+    // define the value of the 20%-line
     twentyPercentLine = maxValue * 0.8;
-    // var twentyPercentLine=200;
 
     // declared here for performance-reasons!
     var tmp = new Array(4);
 
     for (var i = 0; i < dates.length - 1; i++) {
-	// better this way with the transition from one graph to the next,
-	// but not nearly perfect!
+	// create one line of data for the graph
 	tmp = [ dates[i], values[i], twentyPercentLine, maxValue ];
 
 	// now the tmp-array can go into the data
-	content.push(tmp);
+	contentForGraph.push(tmp);
     }
 
-    yRange = [ 0, maxValue * 1.1 ];
+    yRangeOfGraph = [ 0, maxValue * 1.1 ];
 
-    // var canvas = document.getElementById("graph");
-    // var context = canvas.getContext("2d");
-    // context.drawImage("/data/eScan-Logo.jpg",10,10);
-
+    // finally, draw the graph
     drawGraph();
 
 }
 
+/**
+ * @brief Creates and draws the graph into the "innerGraph"-div
+ */
 function drawGraph() {
-    g = new Dygraph(document.getElementById("innerGraph"), content, {
+
+    // create Graph
+    graph = new Dygraph(document.getElementById("innerGraph"), contentForGraph, {
 	// customBars: true,
-	valueRange : yRange,
+	valueRange : yRangeOfGraph,
 	// showRoller: true,
 	rollPeriod : 0,
 	animatedZooms : true,
 	title : 'Lastgang',
 	ylabel : 'KW',
-	zoomCallback : function(minDate, maxDate, yRange) {
+	zoomCallback : function(minDate, maxDate, yRangeOfGraph) {
 	    // TODO: set minima and maxima!
 	},
-	underlayCallback : function(canvas, area, g) {
+	underlayCallback : function(canvas, area, graph) {
 
-	    canvas.drawImage(img, 0, 0, area.w, area.h);
+	    canvas.drawImage(backgroundImageGraph, 0, 0, area.w, area.h);
 
 	    canvas.fillStyle = "rgba(252, 251, 194, 1.0)";
 	    // comment later...
 
-	    if (hlzf != null && hlzf != "nil" && showHLZF) {
+	    if (hlzfFromDB != null && hlzfFromDB != "nil" && showHLZF) {
 
 		/*
 		 * Now draw marks if necessary!
@@ -423,12 +509,12 @@ function drawGraph() {
 
 		    var season = getSeason(dates[i].getMonth());
 
-		    if (daysInHLZF[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+		    if (hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
 			// Found a value over 20%; seach for the end of the
 			// continuing values over 20%
 			var start = i;
 
-			while (daysInHLZF[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+			while (hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
 			    i++;
 			}
 
@@ -437,11 +523,11 @@ function drawGraph() {
 			/*
 			 * Now fill the area
 			 */
-			var canvas_left_x = g.toDomXCoord(dates[start]);
-			var canvas_right_x = g.toDomXCoord(dates[end]);
+			var canvas_left_x = graph.toDomXCoord(dates[start]);
+			var canvas_right_x = graph.toDomXCoord(dates[end]);
 			var canvas_width = canvas_right_x - canvas_left_x;
-			var canvas_y = g.toDomYCoord(maxValue);
-			var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+			var canvas_y = graph.toDomYCoord(maxValue);
+			var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
 			canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
 
 		    } else {
@@ -450,12 +536,12 @@ function drawGraph() {
 		    }
 		}
 
-		// for (var i = 0; i < hlzf.spring.length; i++) {
-		// alert("Beginn: "+hlzf.spring[i].begin+"\nEnd:
-		// "+hlzf.spring[i].end);
+		// for (var i = 0; i < hlzfFromDB.spring.length; i++) {
+		// alert("Beginn: "+hlzfFromDB.spring[i].begin+"\nEnd:
+		// "+hlzfFromDB.spring[i].end);
 		// }
 
-	    } else if (hlzf != null && hlzf != "nil") {
+	    } else if (hlzfFromDB != null && hlzfFromDB != "nil") {
 
 		/*
 		 * Now draw marks if necessary!
@@ -464,7 +550,7 @@ function drawGraph() {
 
 		    var season = getSeason(dates[i].getMonth());
 
-		    if (values[i] >= twentyPercentLine && daysInHLZF[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+		    if (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
 			// Found a value over 20%; seach for the end of the
 			// continuing values over 20%
 			var start = i;
@@ -477,7 +563,7 @@ function drawGraph() {
 			// cssClass:
 			});
 
-			while (values[i] >= twentyPercentLine && daysInHLZF[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+			while (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
 			    i++;
 			}
 
@@ -494,11 +580,11 @@ function drawGraph() {
 			/*
 			 * Now fill the area
 			 */
-			var canvas_left_x = g.toDomXCoord(dates[start]);
-			var canvas_right_x = g.toDomXCoord(dates[end]);
+			var canvas_left_x = graph.toDomXCoord(dates[start]);
+			var canvas_right_x = graph.toDomXCoord(dates[end]);
 			var canvas_width = canvas_right_x - canvas_left_x;
-			var canvas_y = g.toDomYCoord(maxValue);
-			var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+			var canvas_y = graph.toDomYCoord(maxValue);
+			var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
 			canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
 
 		    } else {
@@ -525,11 +611,11 @@ function drawGraph() {
 			/*
 			 * Now fill the area
 			 */
-			var canvas_left_x = g.toDomXCoord(dates[start]);
-			var canvas_right_x = g.toDomXCoord(dates[end]);
+			var canvas_left_x = graph.toDomXCoord(dates[start]);
+			var canvas_right_x = graph.toDomXCoord(dates[end]);
 			var canvas_width = canvas_right_x - canvas_left_x;
-			var canvas_y = g.toDomYCoord(maxValue);
-			var canvas_height = g.toDomYCoord(twentyPercentLine) - canvas_y;
+			var canvas_y = graph.toDomYCoord(maxValue);
+			var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
 			canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
 
 		    } else {
@@ -556,14 +642,17 @@ function drawGraph() {
     // isZoomedIgnoreProgrammaticZoom : true
     });
 
-    if (hlzf != 'nil' && !showHLZF)
-	g.setAnnotations(annotations);
+    if (hlzfFromDB != 'nil' && !showHLZF)
+	graph.setAnnotations(annotations);
     else
-	g.setAnnotations(new Array());
+	graph.setAnnotations(new Array());
 
-    g.resize();
+    graph.resize();
 }
 
+/**
+ * @brief Resets some arrays to get rid of old stuff
+ */
 function resetArrays() {
     dates = new Array();
     values = new Array();

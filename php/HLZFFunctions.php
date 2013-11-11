@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * @author fao
+ * @param unknown $provider
+ * @return Ambigous <string, multitype:multitype:multitype:string   >
+ */
 function getHLZF($provider) {
 	if ($provider == "WR") {
 		// DO SOMETHING
