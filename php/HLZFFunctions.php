@@ -1,12 +1,35 @@
 <?php
+function getProviders() {
+	$ret = Array (
+			"nil" => "- Keine Auswahl",
+			"Stadtwerke Werniogerode" => "Stadtwerke Werniogerode",
+			"Halberstadtwerke" => "Halberstadtwerke" 
+	);
+	
+	// $mysqlhost = "localhost"; // MySQL-Host angeben
+	// $mysqluser = "hlzf"; // MySQL-User angeben
+	// $mysqlpwd = "hlzf"; // Passwort angeben
+	
+	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
+	
+	return $ret;
+}
 
 /**
+ *
  * @author fao
- * @param unknown $provider
- * @return Ambigous <string, multitype:multitype:multitype:string   >
+ * @param unknown $provider        	
+ * @return Ambigous <string, multitype:multitype:multitype:string >
  */
 function getHLZF($provider) {
-	if ($provider == "WR") {
+	if ($provider == "Stadtwerke Werniogerode") {
+		
+		// $mysqlhost = "localhost"; // MySQL-Host angeben
+		// $mysqluser = "hlzf"; // MySQL-User angeben
+		// $mysqlpwd = "hlzf"; // Passwort angeben
+		
+		// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd );
+		
 		// DO SOMETHING
 		$return = array (
 				"spring" => array (

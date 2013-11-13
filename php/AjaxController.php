@@ -78,17 +78,32 @@ class AjaxController {
 				
 				break;
 			
+			case "load_hltw-management-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/hltwManagement.html" );
+				
+				break;
+			
+			case "load_hltw-management-createProvider-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/hltwManagement/hltwManagementCreateProvider.html" );
+				
+				break;
+			
+			case "load_hltw-management-createHltw-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/hltwManagement/hltwManagementCreateHltw.html" );
+				
+				break;
+			
 			case "getProviders" :
 				
-				$ret = Array (
-						"nil" => "- Keine Auswahl",
-						"WR" => "Stadtwerke Werniogerode",
-						"HBS" => "Halberstadtwerke" 
-				);
-				// $ret = "Hello World!";
+				$ret = getProviders ();
 				
 				$result = json_encode ( $ret );
-				// $result = $ret;
 				
 				break;
 			
