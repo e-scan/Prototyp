@@ -81,7 +81,7 @@ class AjaxController {
 			case "load_hltw-management-template" :
 				
 				// Template in Variable laden und als Rueckgabewert setzen
-				$result = file_get_contents ( "./templates/hltwManagement.html" );
+				$result = file_get_contents ( "./templates/hltwManagement/hltwManagement.html" );
 				
 				break;
 			
@@ -99,6 +99,13 @@ class AjaxController {
 				
 				break;
 			
+			case "load_hltw-management-editProvider-template" :
+				
+				// Template in Variable laden und als Rueckgabewert setzen
+				$result = file_get_contents ( "./templates/hltwManagement/hltwManagementEditProvider.html" );
+				
+				break;
+			
 			case "getProviders" :
 				
 				$ret = getProviders ();
@@ -113,8 +120,22 @@ class AjaxController {
 				
 				$result = json_encode ( getHLZF ( $provider ) );
 				
-				// $result = json_encode ( $ret );
-				// $result = $ret;
+				break;
+			
+			case "addProvider" :
+				
+				$providerName = $_POST ['providerName'];
+				
+				$result = json_encode ( addProvider ( $providerName ) );
+				
+				break;
+			
+			case "changeProviderInformation" :
+				
+				$oldProviderName = $_POST ['oldProviderName'];
+				$newProviderName = $_POST ['newProviderName'];
+				
+				$result = json_encode ( changeProviderInformation ( $oldProviderName, $newProviderName ) );
 				
 				break;
 			

@@ -1,28 +1,92 @@
 <?php
+
+/**
+ * @author fao
+ * @return multitype:string an Array that contains all providers.
+ */
 function getProviders() {
-	$ret = Array (
-			"nil" => "- Keine Auswahl",
-			"Stadtwerke Werniogerode" => "Stadtwerke Werniogerode",
-			"Halberstadtwerke" => "Halberstadtwerke" 
-	);
 	
-	// $mysqlhost = "localhost"; // MySQL-Host angeben
+	// $ret = Array (
+	// "nil" => "- Keine Auswahl",
+	// "Stadtwerke Werniogerode" => "Stadtwerke Werniogerode",
+	// "Halberstadtwerke" => "Halberstadtwerke"
+	// );
+	
+	// $mysqlhost = "localhost:3306"; // MySQL-Host angeben
 	// $mysqluser = "hlzf"; // MySQL-User angeben
 	// $mysqlpwd = "hlzf"; // Passwort angeben
 	
 	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
+	// echo 'Erfolgreich verbunden<br>';
+	
+	$result = mysql_query ( 'SELECT * FROM `e-scan`.`provider`' );
+	if (! $result) {
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	while ( $row = mysql_fetch_assoc ( $result ) ) {
+		$name = $row ['name'];
+		$id = $row ['provider_id'];
+		$ret [$name] = $name;
+	}
+	// echo $ret["Stadtwerke Wernigerode GmbH"];
+	mysql_close ( $link );
 	
 	return $ret;
+}
+function addProvider($providerName) {
+	$retMsg = "OK";
+	
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		$retMsg = "Verbindung schlug fehl.";
+		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
+	
+	$result = mysql_query ( 'INSERT INTO `e-scan`.`provider` (`provider_id` , `name` , `inactive`) VALUES (NULL , "' . $providerName . '", "0"	);' );
+	if (! $result) {
+		$retMsg = "Ungültige Anfrage.";
+		// die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	mysql_close ( $link );
+	
+	return $result;
+}
+function changeProviderInformation($oldProviderName, $newProviderName) {
+	$retMsg = "OK";
+	
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		$retMsg = "Verbindung schlug fehl.";
+		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
+	
+	$result = mysql_query ( 'UPDATE `e-scan`.`provider` SET `name`="' . $newProviderName . '" WHERE `name`="' . $oldProviderName . '";' );
+	
+	if (! $result) {
+		$retMsg = "Ungültige Anfrage.";
+		// die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	mysql_close ( $link );
+	
+	return $result;
 }
 
 /**
  *
  * @author fao
- * @param unknown $provider        	
+ * @param unknown $provider
+ *        	Name of the Provider to identify the hltw related to it.
  * @return Ambigous <string, multitype:multitype:multitype:string >
  */
 function getHLZF($provider) {
-	if ($provider == "Stadtwerke Werniogerode") {
+	if ($provider == "Stadtwerke Wernigerode GmbH") {
 		
 		// $mysqlhost = "localhost"; // MySQL-Host angeben
 		// $mysqluser = "hlzf"; // MySQL-User angeben

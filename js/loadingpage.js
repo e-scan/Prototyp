@@ -4,47 +4,47 @@
  * @author fao
  * @date 23/11/8
  */
-/// Progress (0-100) for the progress-bar when "uploading"
+// / Progress (0-100) for the progress-bar when "uploading"
 var progress = document.querySelector('.percent');
 
-/// Result from File
+// / Result from File
 var resultFromFile;
 
-/// one day for each of the 4 seasons with 15min-dates and true/false (is critical or not)
-/// an array of array: first seasons (spring, summer...) and second associative arrays begin-end and the times (1-*)
+// / one day for each of the 4 seasons with 15min-dates and true/false (is critical or not)
+// / an array of array: first seasons (spring, summer...) and second associative arrays begin-end and the times (1-*)
 var hlzfProcessed;
 
-/// this is the array dygraphs gets to draw the graphs; containing dates, and values for each line
+// / this is the array dygraphs gets to draw the graphs; containing dates, and values for each line
 var contentForGraph;
 
-/// an array of annotations if wished, empty if not (not null!)
+// / an array of annotations if wished, empty if not (not null!)
 var annotations = new Array();
 
-/// hlzfFromDB that comes from a php-script and ultimately a db
+// / hlzfFromDB that comes from a php-script and ultimately a db
 var hlzfFromDB = null;
 
-/// the graph
+// / the graph
 var graph = null;
 
-/// contains all dates, for easier and faster use instead of getting dates from graph
+// / contains all dates, for easier and faster use instead of getting dates from graph
 var dates;
 
-/// contains all values parsed to float
+// / contains all values parsed to float
 var values;
 
-/// contains the highest value (peak) of all values
+// / contains the highest value (peak) of all values
 var maxValue;
 
-/// contains the related date for maxValue
+// / contains the related date for maxValue
 var maxValueDate;
 
-/// one value (float) describing the highness of the twentyPercentLine
+// / one value (float) describing the highness of the twentyPercentLine
 var twentyPercentLine;
 
-/// defines what values are vertikally shown (start/end)
+// / defines what values are vertikally shown (start/end)
 var yRangeOfGraph;
 
-/// contains the background-Image for the graph
+// / contains the background-Image for the graph
 var backgroundImageGraph = new Image();
 backgroundImageGraph.src = "data/eSCAN-Logo.png";
 
@@ -64,8 +64,6 @@ $(document).ready(function(e) {
     // reset all arrays if the template is realoaded and some things are still in the cache
     resetArrays();
 
-    readyProviders();
-
     /*
      * Add function to the wattageGroup-Listener
      */
@@ -74,6 +72,13 @@ $(document).ready(function(e) {
 	    generateGraph(resultFromFile);
 	}
     });
+
+    /*
+     * Fill the provider-select with a message to first upload a "Lastgang".
+     */
+    // get the "combobox" for the providers
+    var select = document.getElementById("providers");
+    select.options[0] = new Option("Zuerst einen Lastgang hochladen!", 0);
 
 });
 
@@ -88,7 +93,7 @@ function readyProviders() {
     var select = document.getElementById("providers");
 
     /*
-     * Now send an ajax-request to a php-script to get all providers (later on from database!)
+     * Now send an ajax-request to a php-script to get all providers (from Database!)
      */
     $.ajax({
 	type : "POST",
@@ -97,6 +102,9 @@ function readyProviders() {
 	    method : "getProviders"
 	},
 	success : function(data) {
+
+	    // first, overwrite the first "Zuerst Lastgang auswählen" option and say "Keine Auswahl".
+	    select.options[0] = new Option("Keine Auswahl", 0);
 
 	    // the array transformed back to json
 	    var providers = JSON.parse(data);
@@ -332,6 +340,9 @@ function handleFileSelect(evt) {
 	progress.textContent = '100%';
 	setTimeout("document.getElementById('progress_bar').className='';", 2000);
 
+	// now get the providers
+	readyProviders();
+
 	// resultFromFile contains the textfile as a string
 	resultFromFile = e.target.result;
 
@@ -550,43 +561,47 @@ function drawGraph() {
 
 		    var season = getSeason(dates[i].getMonth());
 
-		    if (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
-			// Found a value over 20%; seach for the end of the
-			// continuing values over 20%
-			var start = i;
+		    if (values[i] >= twentyPercentLine) {
+			if (hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+			    // Found a value over 20%; seach for the end of the
+			    // continuing values over 20%
+			    var start = i;
 
-			annotations.push({
-			    series : 'MaxValue',
-			    x : Date.parse(dates[start]),
-			    shortText : "!",
-			    text : 'Anfang',
-			// cssClass:
-			});
+			    annotations.push({
+				series : 'MaxValue',
+				x : Date.parse(dates[start]),
+				shortText : "!",
+				text : 'Anfang',
+			    // cssClass:
+			    });
 
-			while (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+			    while (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+				i++;
+			    }
+
+			    var end = i - 1;
+
+			    annotations.push({
+				series : 'MaxValue',
+				x : Date.parse(dates[end]),
+				shortText : "!",
+				text : 'Ende',
+			    // cssClass:
+			    });
+
+			    /*
+			     * Now fill the area
+			     */
+			    var canvas_left_x = graph.toDomXCoord(dates[start]);
+			    var canvas_right_x = graph.toDomXCoord(dates[end]);
+			    var canvas_width = canvas_right_x - canvas_left_x;
+			    var canvas_y = graph.toDomYCoord(maxValue);
+			    var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
+			    canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
+
+			} else {
 			    i++;
 			}
-
-			var end = i - 1;
-
-			annotations.push({
-			    series : 'MaxValue',
-			    x : Date.parse(dates[end]),
-			    shortText : "!",
-			    text : 'Ende',
-			// cssClass:
-			});
-
-			/*
-			 * Now fill the area
-			 */
-			var canvas_left_x = graph.toDomXCoord(dates[start]);
-			var canvas_right_x = graph.toDomXCoord(dates[end]);
-			var canvas_width = canvas_right_x - canvas_left_x;
-			var canvas_y = graph.toDomYCoord(maxValue);
-			var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
-			canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
-
 		    } else {
 			// No value over 20% found, jump to next!
 			i++;
