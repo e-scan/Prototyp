@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="js/hltwManagement/hltwManagementCreateHltw.js"></script>
 <title>Insert title here</title>
 </head>
 <body>
@@ -9,39 +10,17 @@
 	<select id="providerSelect"></select>
 	<br>
 	<br>
-	<label>Zeitfenster hinzufügen: </label>
-	<br>
-	<label>Jahreszeit: </label>
-	<select id="seasonSelect"></select>
-	<br>
-	<label>Anfangs-Uhrzeit: </label>
-	<input type="time">
-	<br>
-	<label>End-Uhrzeit: </label>
-	<input type="time">
-	<br>
-	<label>Bisherige Zeiten:</label>
-	<br>
-	<textarea id="times" cols="40" rows="4"></textarea>
+	<table id="hltwTable" border="1px" style="text-align: center;">
+		<tr>
+			<td>Jahreszeit</td>
+			<td>Beginn (Uhrzeit)</td>
+			<td>Ende (Uhrzeit)</td>
+		</tr>
+	</table>
+	<button id="addTimeWindow">Zeitfenster hinzufügen</button>
 	<br>
 	<br>
-	<button>OK</button>
-
-	<script type="text/javascript">
-	// get the "combobox" for the providers
-	var providerSelect = document.getElementById("providerSelect");
-
-	providerSelect.options[0] = new Option("Stadtwerke Wernigerode", 0);
-	providerSelect.options[1] = new Option("Halberstadtwerke", 1);
-
-	// get the "combobox" for the providers
-	var seasonSelect = document.getElementById("seasonSelect");
-
-	seasonSelect.options[0] = new Option("Frühling", 0);
-	seasonSelect.options[1] = new Option("Sommer", 1);
-	seasonSelect.options[2] = new Option("Herbst", 2);
-	seasonSelect.options[3] = new Option("Winter", 3);
-    </script>
+	<button id="confirmButton">OK</button>
 
 </body>
 </html>
