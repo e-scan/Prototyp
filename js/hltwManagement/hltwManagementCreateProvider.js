@@ -3,36 +3,36 @@
  */
 $("button#createProviderOK").click(function() {
 
-    var strProviderName = document.getElementById('providerName').value;
-    // alert(strProviderName);
+	var strProviderName = document.getElementById('providerName').value;
+	// alert(strProviderName);
 
-    $.ajax({
-	type : "POST",
-	url : "server.php",
-	data : {
-	    providerName : strProviderName,
-	    method : "addProvider"
-	},
-	success : function(data) {
+	$.ajax({
+		type : "POST",
+		url : "server.php",
+		data : {
+			method : "addProvider",
+			providerName : strProviderName
+		},
+		success : function(data) {
 
-	    /*
-	     * If ready, process the date (containing the response from the query!)
-	     */
-	    var status = JSON.parse(data);
+			/*
+			 * If ready, process the date (containing the response from the query!)
+			 */
+			var status = JSON.parse(data);
 
-	    document.getElementById("createProviderOKStatus").style.visibility = "visible";
+			document.getElementById("createProviderOKStatus").style.visibility = "visible";
 
-	    if (status) {
-		// alert("alles OK!");
-		document.getElementById("createProviderOKStatus").innerHTML = "Betreiber hinzugef&uuml;gt!";
-		document.getElementById("createProviderOKStatus").style.backgroundColor = "#77CE63";
-	    } else {
-		// alert("Fehler!");
-		document.getElementById("createProviderOKStatus").innerHTML = "Fehler!";
-		document.getElementById("createProviderOKStatus").style.backgroundColor = "#E05C5C";
-	    }
+			if (status) {
+				// alert("alles OK!");
+				document.getElementById("createProviderOKStatus").innerHTML = "Betreiber hinzugef&uuml;gt!";
+				document.getElementById("createProviderOKStatus").style.backgroundColor = "#77CE63";
+			} else {
+				// alert("Fehler!");
+				document.getElementById("createProviderOKStatus").innerHTML = "Fehler bei DB!";
+				document.getElementById("createProviderOKStatus").style.backgroundColor = "#E05C5C";
+			}
 
-	}
-    });
+		}
+	});
 
 });

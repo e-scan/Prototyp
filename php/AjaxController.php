@@ -139,6 +139,14 @@ class AjaxController {
 				
 				break;
 			
+			case "addHltw" :
+				
+				$hltwProcessed = json_decode ( $_POST ['hltw'] );
+				
+				$result = json_encode ( addHltw ( $hltwProcessed ) );
+				
+				break;
+			
 			default :
 				$result = "Ein Fehler ist aufgetreten!";
 				

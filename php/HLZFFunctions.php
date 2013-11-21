@@ -57,6 +57,33 @@ function addProvider($providerName) {
 	
 	return $result;
 }
+function addHltw($hltwProcessed) {
+	
+	// echo $hltwProcessed;
+	
+	// $retMsg = "OK";
+	
+	// $link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	// if (! $link) {
+	// $retMsg = "Verbindung schlug fehl.";
+	// // die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	// }
+	
+	// $result = mysql_query ( 'INSERT INTO `e-scan`.`provider` (`provider_id` , `name` , `inactive`) VALUES (NULL , "' . $providerName . '", "0" );' );
+	// if (! $result) {
+	// $retMsg = "Ungültige Anfrage.";
+	// // die ( 'Ungültige Anfrage: ' . mysql_error () );
+	// }
+	
+	// mysql_close ( $link );
+	
+	// echo $hltwProcessed;
+	
+	// $test = array ("test" => "test2");
+	$test = $hltwProcessed;
+	
+	return $test;
+}
 function changeProviderInformation($oldProviderName, $newProviderName) {
 	$retMsg = "OK";
 	
