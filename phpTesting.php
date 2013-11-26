@@ -1,6 +1,6 @@
 <?php
 include_once 'php/HLZFFunctions.php';
 
-addProvider("test");
+getHLTWs("Stadtwerke Wernigerode GmbH");
 
 ?>

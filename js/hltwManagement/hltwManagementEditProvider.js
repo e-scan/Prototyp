@@ -3,31 +3,68 @@
  */
 $(document).ready(function(e) {
 
-    var editProviderSelect = document.getElementById("providerEditSelect");
-    // alert(strProviderName);
+    var chooseHltwSelect = document.getElementById("chooseHltwSelect");
+
+    var providerEditSelect = document.getElementById("providerEditSelect");
+    var strProviderName = providerEditSelect.options[providerEditSelect.selectedIndex].value;
 
     /*
-     * Now send an ajax-request to a php-script to get all providers (from Database!)
+     * Load the hltw's that are already stored in DB for this provider! (if any)
      */
     $.ajax({
 	type : "POST",
 	url : "server.php",
 	data : {
-	    method : "getProviders"
+	    method : "getHLTWs",
+	    provider : strProviderName
 	},
 	success : function(data) {
 
 	    // the array transformed back to json
-	    var providers = JSON.parse(data);
+	    var years = JSON.parse(data);
 
 	    // and add each provider (incl. "nil") to the select-form as option
-	    jQuery.each(providers, function(i, val) {
-		editProviderSelect.options[editProviderSelect.options.length] = new Option(val, i);
+	    jQuery.each(years, function(i, val) {
+		chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
 	    });
 
 	}
     });
 
+    /*
+     * Now connect all inputs and their functions
+     */
+    $("select#chooseHltwSelect").change(function(e) {
+
+	var select = document.getElementById("chooseHltwSelect");
+
+	if (select.selectedIndex == 1) {
+	    $.ajax({
+		type : "POST",
+		url : "server.php",
+		data : {
+		    method : "load_hltw-management-createHltw-template"
+		},
+		success : function(content) {
+		    $("#hltwManagementContainer").html(content);
+		}
+	    });
+
+	} else {
+	    $.ajax({
+		type : "POST",
+		url : "server.php",
+		data : {
+		    method : "load_hltw-management-editHltw-template"
+		},
+		success : function(content) {
+		    $("#hltwManagementContainer").html(content);
+		}
+	    });
+
+	}
+
+    });
 });
 
 /**
@@ -39,7 +76,6 @@ $("button#editProviderOK").click(function() {
     var editProviderNewNameStatusLabel = document.getElementById("editProviderNewNameStatus");
 
     var providerEditSelect = document.getElementById("providerEditSelect");
-    var editProviderSelectedProviderStatusLabel = document.getElementById("editProviderSelectedProviderStatus");
 
     var editProviderOkStatusLabel = document.getElementById("editProviderOkStatus");
 
@@ -56,18 +92,7 @@ $("button#editProviderOK").click(function() {
     } else {
 	editProviderNewNameStatusLabel.innerHTML = "OK!";
 	editProviderNewNameStatusLabel.style.backgroundColor = "#77CE63";
-	editProviderNewNameStatusLabel.style.visibility = "visible";
-    }
-
-    if (oldProviderNameStr == "") {
-	editProviderSelectedProviderStatusLabel.innerHTML = "Bitte einen Betreiber ausw&auml;hlen!";
-	editProviderSelectedProviderStatusLabel.style.backgroundColor = "#E05C5C";
-	editProviderSelectedProviderStatusLabel.style.visibility = "visible";
-	everythingOk = false;
-    } else {
-	editProviderSelectedProviderStatusLabel.innerHTML = "OK!";
-	editProviderSelectedProviderStatusLabel.style.backgroundColor = "#77CE63";
-	editProviderSelectedProviderStatusLabel.style.visibility = "visible";
+	editProviderNewNameStatusLabel.style.visibility = "hidden";
     }
 
     if (everythingOk) {
@@ -94,6 +119,7 @@ $("button#editProviderOK").click(function() {
 		    editProviderOkStatusLabel.innerHTML = "Werte ge&auml;ndert!";
 		    editProviderOkStatusLabel.style.backgroundColor = "#77CE63";
 		    editProviderOkStatusLabel.style.visibility = "visible";
+		    getProviders("providerEditSelect");
 		} else {
 		    // alert("Fehler!");
 		    editProviderOkStatusLabel.innerHTML = "Fehler bei Datenbank!";
@@ -105,42 +131,54 @@ $("button#editProviderOK").click(function() {
 	});
 
 	/*
-	 * Clear all providers in the select before requesting new ones!
-	 */
-	providerEditSelect.options.length = 0;
-
-	/*
 	 * Now send an ajax-request to a php-script to get all providers (from Database!) and set signal to show the user a change was made!
 	 */
-	$.ajax({
-	    type : "POST",
-	    url : "server.php",
-	    data : {
-		method : "getProviders"
-	    },
-	    success : function(data) {
-
-		// the array transformed back to json
-		var providers = JSON.parse(data);
-
-		// and add each provider (incl. "nil") to the select-form as option
-		jQuery.each(providers, function(i, val) {
-		    providerEditSelect.options[providerEditSelect.options.length] = new Option(val, i);
-		});
-
-		for (var i = 0, j = providerEditSelect.options.length; i < j; ++i) {
-		    if (providerEditSelect.options[i].innerHTML === newProviderNameStr) {
-			providerEditSelect.selectedIndex = i;
-			break;
-		    }
-		}
-
-	    }
-	});
+	getProviders();
     } else {
 	editProviderOkStatusLabel.innerHTML = "Bitte erst Fehler korrigieren!";
 	editProviderOkStatusLabel.style.backgroundColor = "#E05C5C";
 	editProviderOkStatusLabel.style.visibility = "visible";
     }
+
+});
+
+$("button#editProviderDEL").click(function() {
+
+    var editProviderSelect = document.getElementById("providerEditSelect");
+    var editProviderDelStatusLabel = document.getElementById("editProviderDelStatus");
+
+    var ProviderNameStr = editProviderSelect.options[editProviderSelect.selectedIndex].value;
+
+    $.ajax({
+	type : "POST",
+	url : "server.php",
+	data : {
+	    providerName : ProviderNameStr,
+	    method : "delProvider"
+	},
+	success : function(data) {
+
+	    /*
+	     * If ready, process the date (containing the response from the query!)
+	     */
+	    var status = JSON.parse(data);
+
+	    editProviderDelStatusLabel.style.visibility = "visible";
+
+	    if (status) {
+		// alert("alles OK!");
+		editProviderDelStatusLabel.innerHTML = "Betreiber gel&ouml;scht!";
+		editProviderDelStatusLabel.style.backgroundColor = "#77CE63";
+		editProviderDelStatusLabel.style.visibility = "visible";
+		getProviders("providerEditSelect");
+	    } else {
+		// alert("Fehler!");
+		editProviderDelStatusLabel.innerHTML = "Fehler bei Datenbank!";
+		editProviderDelStatusLabel.style.backgroundColor = "#E05C5C";
+		editProviderDelStatusLabel.style.visibility = "visible";
+	    }
+
+	}
+    });
 
 });

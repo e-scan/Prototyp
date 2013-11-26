@@ -3,54 +3,85 @@
  * @author: fao
  */
 
+/**
+ * Called when the document is loaded.
+ */
 $(document).ready(function(e) {
     /*
-     * Here all necessary things are done so that all buttons and functions are ready for user-use!
+     * Get all providers and connect buttons and functions.
      */
 
-    $("button#createProvider").click(function() {
+    // get providers and reset
+    getProviders("providerEditSelect");
 
-	$.ajax({
-	    type : "POST",
-	    url : "server.php",
-	    data : {
-		method : "load_hltw-management-createProvider-template"
-	    },
-	    success : function(content) {
-		$("#managementContainer").html(content);
-	    }
-	});
+    /*
+     * Now connect all inputs and their functions
+     */
+    $("select#providerEditSelect").change(function(e) {
 
-    });
+	var select = document.getElementById("providerEditSelect");
 
-    $("button#editProvider").click(function() {
+	if (select.selectedIndex == 1) {
 
-	$.ajax({
-	    type : "POST",
-	    url : "server.php",
-	    data : {
-		method : "load_hltw-management-editProvider-template"
-	    },
-	    success : function(content) {
-		$("#managementContainer").html(content);
-	    }
-	});
+	    $.ajax({
+		type : "POST",
+		url : "server.php",
+		data : {
+		    method : "load_hltw-management-createProvider-template"
+		},
+		success : function(content) {
+		    $("#managementContainer").html(content);
+		}
+	    });
 
-    });
+	} else {
 
-    $("button#createHltw").click(function() {
+	    $.ajax({
+		type : "POST",
+		url : "server.php",
+		data : {
+		    method : "load_hltw-management-editProvider-template"
+		},
+		success : function(content) {
+		    $("#managementContainer").html(content);
+		}
+	    });
 
-	$.ajax({
-	    type : "POST",
-	    url : "server.php",
-	    data : {
-		method : "load_hltw-management-createHltw-template"
-	    },
-	    success : function(content) {
-		$("#managementContainer").html(content);
-	    }
-	});
+	}
 
     });
 
 });
+
+function getProviders(selectId) {
+
+    var editProviderSelect = document.getElementById(selectId);
+
+    /*
+     * Clear all providers in the select before requesting new ones!
+     */
+    editProviderSelect.options.length = 2;
+
+    /*
+     * Now send an ajax-request to a php-script to get all providers (from Database!)
+     */
+    $.ajax({
+	type : "POST",
+	url : "server.php",
+	data : {
+	    method : "getProviders"
+	},
+	success : function(data) {
+
+	    // the array transformed back to json
+	    var providers = JSON.parse(data);
+
+	    // and add each provider (incl. "nil") to the select-form as option
+	    jQuery.each(providers, function(i, val) {
+		editProviderSelect.options[editProviderSelect.options.length] = new Option(val, i);
+	    });
+
+	}
+    });
+
+}

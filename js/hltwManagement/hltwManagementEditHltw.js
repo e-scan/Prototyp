@@ -3,52 +3,7 @@
  */
 $(document).ready(function(e) {
 
-    /*
-     * add 4 rows; one for each season!
-     */
-
-    initTable();
-
     $("button#confirmButton").click(function() {
-	saveInDB();
-    });
-
-    $("button#addTimeWindow").click(function() {
-	addRow();
-    });
-
-    function initTable() {
-
-	addRow();
-	addRow();
-	addRow();
-	addRow();
-
-	var table = document.getElementById("hltwTable");
-
-	// set one row for each season
-	for (var i = 0; i < 4; i++) {
-	    table.rows[i + 1].cells[0].getElementsByTagName("select")[0].selectedIndex = i;
-	}
-
-    }
-
-    function addRow() {
-
-	var table = document.getElementById("hltwTable");
-
-	var newRow = table.insertRow(table.rows.length);
-
-	var seasonCell = newRow.insertCell(0);
-	var beginTimeCell = newRow.insertCell(1);
-	var endTimeCell = newRow.insertCell(2);
-
-	seasonCell.innerHTML = "<select id=\"seasonSelect\"><option>Fr&uuml;hling</option><option>Sommer</option><option>Herbst</option><option>Winter</option></select>";
-	beginTimeCell.innerHTML = "<td><input id=\"beginTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
-	endTimeCell.innerHTML = "<td><input id=\"endTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
-    }
-
-    function saveInDB() {
 
 	/*
 	 * First, check if everything is ok!
@@ -143,54 +98,13 @@ $(document).ready(function(e) {
 	    /*
 	     * now create the hltwProcessed; containing all time-Windows and all seasons!
 	     */
-
 	    var hltwProcessed = {
-		"spring" : Array(),
-		"summer" : Array(),
-		"autum" : Array(),
-		"winter" : Array()
+		"Hello" : "World"
 	    };
 
-	    var yearValid = document.getElementById("yearInput").value;
-
-	    for (var i = 1; i < table.rows.length; i++) {
-		switch (table.rows[i].cells[0].getElementsByTagName("select")[0].selectedIndex) {
-		case 0:
-		    // alert("spring");
-		    hltwProcessed["spring"][hltwProcessed["spring"].length] = {
-			"begin" : table.rows[i].cells[1].getElementsByTagName("input")[0].value,
-			"end" : table.rows[i].cells[2].getElementsByTagName("input")[0].value
-		    };
-		    break;
-		case 1:
-		    // alert("summer");
-		    hltwProcessed["summer"][hltwProcessed["summer"].length] = {
-			"begin" : table.rows[i].cells[1].getElementsByTagName("input")[0].value,
-			"end" : table.rows[i].cells[2].getElementsByTagName("input")[0].value
-		    };
-		    break;
-		case 2:
-		    // alert("autum");
-		    hltwProcessed["autum"][hltwProcessed["autum"].length] = {
-			"begin" : table.rows[i].cells[1].getElementsByTagName("input")[0].value,
-			"end" : table.rows[i].cells[2].getElementsByTagName("input")[0].value
-		    };
-		    break;
-		case 3:
-		    // alert("winter");
-		    hltwProcessed["winter"][hltwProcessed["winter"].length] = {
-			"begin" : table.rows[i].cells[1].getElementsByTagName("input")[0].value,
-			"end" : table.rows[i].cells[2].getElementsByTagName("input")[0].value
-		    };
-		    break;
-
-		default:
-		    break;
-		}
-	    }
-
 	    var hltwProcessedJSON = JSON.stringify(hltwProcessed);
-	    // alert(hltwProcessedJSON);
+
+	    // var hltwProcessed = "Test";
 
 	    // inster into DB!
 	    $.ajax({
@@ -198,7 +112,6 @@ $(document).ready(function(e) {
 		url : "server.php",
 		data : {
 		    method : "addHltw",
-		    year : yearValid,
 		    hltw : hltwProcessedJSON
 		},
 		success : function(data) {
@@ -206,9 +119,9 @@ $(document).ready(function(e) {
 		    /*
 		     * If ready, process the date (containing the response from the query!)
 		     */
-		    alert(data);
+		    // alert(data);
 		    var status = JSON.parse(data);
-		    alert(status);
+		    // alert(status);
 
 		    document.getElementById("createHltwOKStatus").style.visibility = "visible";
 
@@ -227,6 +140,27 @@ $(document).ready(function(e) {
 
 	}
 
+    });
+
+    $("button#addTimeWindow").click(function() {
+
+	addRow();
+
+    });
+
+    function addRow() {
+
+	var table = document.getElementById("hltwTable");
+
+	var newRow = table.insertRow(table.rows.length);
+
+	var seasonCell = newRow.insertCell(0);
+	var beginTimeCell = newRow.insertCell(1);
+	var endTimeCell = newRow.insertCell(2);
+
+	seasonCell.innerHTML = "<select id=\"seasonSelect\"><option>Fr&uuml;hling</option><option>Sommer</option><option>Herbst</option><option>Winter</option></select>";
+	beginTimeCell.innerHTML = "<td><input id=\"beginTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
+	endTimeCell.innerHTML = "<td><input id=\"endTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
     }
 
 });

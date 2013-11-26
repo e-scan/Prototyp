@@ -6,16 +6,6 @@
  */
 function getProviders() {
 	
-	// $ret = Array (
-	// "nil" => "- Keine Auswahl",
-	// "Stadtwerke Werniogerode" => "Stadtwerke Werniogerode",
-	// "Halberstadtwerke" => "Halberstadtwerke"
-	// );
-	
-	// $mysqlhost = "localhost:3306"; // MySQL-Host angeben
-	// $mysqluser = "hlzf"; // MySQL-User angeben
-	// $mysqlpwd = "hlzf"; // Passwort angeben
-	
 	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
 	if (! $link) {
@@ -38,6 +28,33 @@ function getProviders() {
 	
 	return $ret;
 }
+function getHLTWs($provider) {
+	
+	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
+		echo "Verbindung fehlgeschlagen!";
+	}
+	// echo 'Erfolgreich verbunden<br>';
+	
+	$result = mysql_query ( 'SELECT  `year` FROM  `e-scan`.`provider_anual_values` WHERE  `provider_id` = ( SELECT `provider_id` FROM  `e-scan`.`provider` WHERE  `name` =  "' . $provider . '");' );
+	if (! $result) {
+		// die ( 'Ungültige Anfrage: ' . mysql_error () );
+		echo "ungültige Anfrage!";
+	}
+	
+	$years = array ();
+	
+	while ( $row = mysql_fetch_assoc ( $result ) ) {
+		$year = $row ['year'];
+		$years [$year] = $year;
+		// echo $year;
+	}
+	
+	mysql_close ( $link );
+	return $years;
+}
 function addProvider($providerName) {
 	$retMsg = "OK";
 	
@@ -57,32 +74,49 @@ function addProvider($providerName) {
 	
 	return $result;
 }
-function addHltw($hltwProcessed) {
+function delProvider($providerName) {
+	$retMsg = "OK";
 	
-	// echo $hltwProcessed;
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		$retMsg = "Verbindung schlug fehl.";
+		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
 	
-	// $retMsg = "OK";
+	$result = mysql_query ( "DELETE FROM `e-scan`.`provider` WHERE `provider`.`name` = '" . $providerName . "';" );
+	if (! $result) {
+		$retMsg = "Ungültige Anfrage.";
+		// die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
 	
-	// $link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
-	// if (! $link) {
-	// $retMsg = "Verbindung schlug fehl.";
-	// // die ( 'Verbindung schlug fehl: ' . mysql_error () );
-	// }
+	mysql_close ( $link );
 	
-	// $result = mysql_query ( 'INSERT INTO `e-scan`.`provider` (`provider_id` , `name` , `inactive`) VALUES (NULL , "' . $providerName . '", "0" );' );
-	// if (! $result) {
-	// $retMsg = "Ungültige Anfrage.";
-	// // die ( 'Ungültige Anfrage: ' . mysql_error () );
-	// }
+	return $result;
+}
+function addHltw($year, $hltwProcessed) {
+	foreach ( $hltwProcessed as $season ) {
+		
+		foreach ( $season as $timeFrame ) {
+			$begin = $timeFrame->begin;
+			$end = $timeFrame->end;
+		}
+	}
 	
-	// mysql_close ( $link );
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
 	
-	// echo $hltwProcessed;
+	if (! $link) {
+		$retMsg = "Verbindung schlug fehl.";
+		die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
 	
-	// $test = array ("test" => "test2");
-	$test = $hltwProcessed;
+	$result = mysql_query ( 'INSERT INTO  `e-scan`.`provider_anual_values` (`pav_id` ,`provider_id` ,`year` ,`info`) VALUES (NULL ,  "1",  "' . $year . '",  "");' );
 	
-	return $test;
+	if (! $result) {
+		$retMsg = "Ungültige Anfrage.";
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	return $result;
 }
 function changeProviderInformation($oldProviderName, $newProviderName) {
 	$retMsg = "OK";

@@ -6,17 +6,25 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<select id="providerEditSelect"></select>
-	<label id="editProviderSelectedProviderStatus"
-		style="visibility: hidden; display: inline-block; text-align: center;"></label>
-	<br>
-	<label>neuer Name des Betreibers</label>
+
+	<label>neuer Name des Betreibers:</label>
 	<input type="text" id="providerName">
 	<label id="editProviderNewNameStatus"
 		style="visibility: hidden; display: inline-block; text-align: center;"></label>
 	<br>
-	<button id="editProviderOK">OK</button>
+	<button id="editProviderOK">Bearbeiten</button>
 	<label id="editProviderOkStatus"
 		style="visibility: hidden; display: inline-block; text-align: center; color: white;"></label>
+	<button id="editProviderDEL">Löschen</button>
+	<label id="editProviderDelStatus"
+		style="visibility: hidden; display: inline-block; text-align: center; color: white;"></label>
+
+	<br>
+	<br>
+	<label>Hochlastzeitfenster:</label>
+	<select id="chooseHltwSelect"><option selected disabled>Bitte
+			auswählen</option>
+		<option>Hinzufügen</option></select>
+
 </body>
 </html>
