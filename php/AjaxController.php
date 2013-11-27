@@ -124,8 +124,9 @@ class AjaxController {
 			case "getHLZF" :
 				
 				$provider = $_POST ['provider'];
+				$year = $_POST ['year'];
 				
-				$result = json_encode ( getHLZF ( $provider ) );
+				$result = json_encode ( getHLZF ( $provider, $year ) );
 				
 				break;
 			
@@ -156,10 +157,11 @@ class AjaxController {
 			
 			case "addHltw" :
 				
+				$providerStr = $_POST ['providerStr'];
 				$year = json_decode ( $_POST ['year'] );
 				$hltwProcessed = json_decode ( $_POST ['hltw'] );
 				
-				$result = json_encode ( addHltw ( $year, $hltwProcessed ) );
+				$result = json_encode ( addHltw ( $providerStr, $year, $hltwProcessed ) );
 				
 				break;
 			

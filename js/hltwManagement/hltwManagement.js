@@ -22,6 +22,13 @@ $(document).ready(function(e) {
 	var select = document.getElementById("providerEditSelect");
 
 	if (select.selectedIndex == 1) {
+	    /*
+	     * Create new Provider.
+	     */
+
+	    // reset old templates for editing/creating hltw!
+	    // TODO: check if anything is to be canceled and ask for input!
+	    $("#hltwManagementContainer").html("");
 
 	    $.ajax({
 		type : "POST",
@@ -35,6 +42,10 @@ $(document).ready(function(e) {
 	    });
 
 	} else {
+
+	    /*
+	     * Edit a Provider.
+	     */
 
 	    $.ajax({
 		type : "POST",

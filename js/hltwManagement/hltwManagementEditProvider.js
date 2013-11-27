@@ -3,33 +3,10 @@
  */
 $(document).ready(function(e) {
 
-    var chooseHltwSelect = document.getElementById("chooseHltwSelect");
-
-    var providerEditSelect = document.getElementById("providerEditSelect");
-    var strProviderName = providerEditSelect.options[providerEditSelect.selectedIndex].value;
-
     /*
      * Load the hltw's that are already stored in DB for this provider! (if any)
      */
-    $.ajax({
-	type : "POST",
-	url : "server.php",
-	data : {
-	    method : "getHLTWs",
-	    provider : strProviderName
-	},
-	success : function(data) {
-
-	    // the array transformed back to json
-	    var years = JSON.parse(data);
-
-	    // and add each provider (incl. "nil") to the select-form as option
-	    jQuery.each(years, function(i, val) {
-		chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
-	    });
-
-	}
-    });
+    loadHltws();
 
     /*
      * Now connect all inputs and their functions
@@ -66,6 +43,37 @@ $(document).ready(function(e) {
 
     });
 });
+
+/**
+ * Loads all hltw for the specifiedrpovider.
+ */
+function loadHltws() {
+    var chooseHltwSelect = document.getElementById("chooseHltwSelect");
+    chooseHltwSelect.options.length = 2;
+
+    var providerEditSelect = document.getElementById("providerEditSelect");
+    var strProviderName = providerEditSelect.options[providerEditSelect.selectedIndex].value;
+
+    $.ajax({
+	type : "POST",
+	url : "server.php",
+	data : {
+	    method : "getHLTWs",
+	    provider : strProviderName
+	},
+	success : function(data) {
+
+	    // the array transformed back to json
+	    var years = JSON.parse(data);
+
+	    // and add each provider (incl. "nil") to the select-form as option
+	    jQuery.each(years, function(i, val) {
+		chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
+	    });
+
+	}
+    });
+}
 
 /**
  * Called when the Button to add a Provider is pressed. Changes the "createProviderOKStatus"-Label to give the user a feedback!

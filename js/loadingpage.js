@@ -131,14 +131,16 @@ function readyProviders() {
 	    type : "POST",
 	    url : "server.php",
 	    data : {
+		method : "getHLZF",
 		provider : strProvider,
-		method : "getHLZF"
+		year : "2012"
 	    },
 	    success : function(data) {
 
 		/*
 		 * If ready, process the date
 		 */
+		alert(data);
 		hlzfFromDB = JSON.parse(data);
 
 		if (hlzfFromDB != "nil") {

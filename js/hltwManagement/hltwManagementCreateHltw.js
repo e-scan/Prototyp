@@ -125,20 +125,32 @@ $(document).ready(function(e) {
 	    if (parseInt(beginTime[0]) > parseInt(endTime[0])) {
 		table.rows[i].cells[1].getElementsByTagName("input")[0].style.backgroundColor = "#E05C5C";
 		table.rows[i].cells[2].getElementsByTagName("input")[0].style.backgroundColor = "#E05C5C";
+		everythingOk = false;
 	    } else if (parseInt(beginTime[0]) == parseInt(endTime[0]) && parseInt(beginTime[1]) >= parseInt(endTime[1])) {
 		table.rows[i].cells[1].getElementsByTagName("input")[0].style.backgroundColor = "#E05C5C";
 		table.rows[i].cells[2].getElementsByTagName("input")[0].style.backgroundColor = "#E05C5C";
+		everythingOk = false;
 	    } else {
-		table.rows[i].cells[1].getElementsByTagName("input")[0].style.backgroundColor = "#77CE63";
-		table.rows[i].cells[2].getElementsByTagName("input")[0].style.backgroundColor = "#77CE63";
+		table.rows[i].cells[1].getElementsByTagName("input")[0].style.backgroundColor = "#FFFFFF";
+		table.rows[i].cells[2].getElementsByTagName("input")[0].style.backgroundColor = "#FFFFFF";
 	    }
 
 	}
 
 	// for debugging
-	everythingOk = true;
+	// everythingOk = true;
 
-	if (everythingOk == true) {
+	alert(everythingOk);
+
+	if (everythingOk) {
+
+	    /*
+	     * Get all needed Information.
+	     */
+	    var yearValid = document.getElementById("yearInput").value;
+
+	    var editProviderSelect = document.getElementById("providerEditSelect");
+	    var providerNameStr = editProviderSelect.options[editProviderSelect.selectedIndex].value;
 
 	    /*
 	     * now create the hltwProcessed; containing all time-Windows and all seasons!
@@ -150,8 +162,6 @@ $(document).ready(function(e) {
 		"autum" : Array(),
 		"winter" : Array()
 	    };
-
-	    var yearValid = document.getElementById("yearInput").value;
 
 	    for (var i = 1; i < table.rows.length; i++) {
 		switch (table.rows[i].cells[0].getElementsByTagName("select")[0].selectedIndex) {
@@ -191,17 +201,20 @@ $(document).ready(function(e) {
 
 	    var hltwProcessedJSON = JSON.stringify(hltwProcessed);
 	    // alert(hltwProcessedJSON);
-
+	    alert(providerNameStr);
 	    // inster into DB!
 	    $.ajax({
 		type : "POST",
 		url : "server.php",
 		data : {
 		    method : "addHltw",
+		    providerStr : providerNameStr,
 		    year : yearValid,
 		    hltw : hltwProcessedJSON
 		},
 		success : function(data) {
+
+		    loadHltws();
 
 		    /*
 		     * If ready, process the date (containing the response from the query!)

@@ -1,6 +1,6 @@
 <?php
 include_once 'php/HLZFFunctions.php';
 
-getHLTWs("Stadtwerke Wernigerode GmbH");
+getHLZF("Stadtwerke Wernigerode GmbH", "2012");
 
 ?>

@@ -3,6 +3,49 @@
  */
 $(document).ready(function(e) {
 
+    /*
+     * Get all needed Information.
+     */
+    var yearSelect = document.getElementById("chooseHltwSelect");
+    var yearValid = yearSelect.options[yearSelect.selectedIndex].value;
+
+    // alert(yearValid);
+
+    var editProviderSelect = document.getElementById("providerEditSelect");
+    var providerNameStr = editProviderSelect.options[editProviderSelect.selectedIndex].value;
+
+    $.ajax({
+	type : "POST",
+	url : "server.php",
+	data : {
+	    method : "getHLZF",
+	    provider : providerNameStr,
+	    year : yearValid
+	},
+	success : function(data) {
+
+	    /*
+	     * If ready, process the date (containing the response from the query!)
+	     */
+	    alert(data);
+	    var status = JSON.parse(data);
+	    alert(status);
+
+	    document.getElementById("createHltwOKStatus").style.visibility = "visible";
+
+	    // if (status) {
+	    // // alert("alles OK!");
+	    // document.getElementById("createHltwOKStatus").innerHTML = "Betreiber hinzugef&uuml;gt!";
+	    // document.getElementById("createHltwOKStatus").style.backgroundColor = "#77CE63";
+	    // } else {
+	    // // alert("Fehler!");
+	    // document.getElementById("createHltwOKStatus").innerHTML = "Fehler bei DB!";
+	    // document.getElementById("createHltwOKStatus").style.backgroundColor = "#E05C5C";
+	    // }
+
+	}
+    });
+
     $("button#confirmButton").click(function() {
 
 	/*
@@ -95,6 +138,12 @@ $(document).ready(function(e) {
 
 	if (everythingOk == true) {
 
+	    var editProviderSelect = document.getElementById("providerEditSelect");
+	    var ProviderNameStr = editProviderSelect.options[editProviderSelect.selectedIndex].value;
+
+	    var yearValid = document.getElementById("yearInput")[0].value;
+	    alert(yearValid);
+
 	    /*
 	     * now create the hltwProcessed; containing all time-Windows and all seasons!
 	     */
@@ -112,7 +161,9 @@ $(document).ready(function(e) {
 		url : "server.php",
 		data : {
 		    method : "addHltw",
-		    hltw : hltwProcessedJSON
+		    hltw : hltwProcessedJSON,
+		    year : yearValid,
+		    provider : ProviderNameStr
 		},
 		success : function(data) {
 
@@ -137,7 +188,7 @@ $(document).ready(function(e) {
 
 		}
 	    });
-
+	    loadHltws();
 	}
 
     });

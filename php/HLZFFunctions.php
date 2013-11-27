@@ -28,6 +28,14 @@ function getProviders() {
 	
 	return $ret;
 }
+/**
+ * Returns the years for which an HLTW exists for the specified provider.
+ *
+ * @author fao
+ * @param unknown $provider
+ *        	The name of the Provider the HLTW belongs to.
+ * @return multitype:unknown An array with the years in it.
+ */
 function getHLTWs($provider) {
 	
 	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
@@ -55,6 +63,14 @@ function getHLTWs($provider) {
 	mysql_close ( $link );
 	return $years;
 }
+/**
+ * Adds a provider to the DB.
+ *
+ * @author fao
+ * @param unknown $providerName
+ *        	Name of the provider.
+ * @return unknown The result, wheather the query was usccessfull or not.
+ */
 function addProvider($providerName) {
 	$retMsg = "OK";
 	
@@ -74,6 +90,14 @@ function addProvider($providerName) {
 	
 	return $result;
 }
+/**
+ * Deletes the provider from the DB.
+ * (Real deleting, not just making inactive!)
+ *
+ * @param unknown $providerName
+ *        	The name of the provider (Primarykey in DB)
+ * @return unknown Wheather the request was successfull or not.
+ */
 function delProvider($providerName) {
 	$retMsg = "OK";
 	
@@ -93,12 +117,34 @@ function delProvider($providerName) {
 	
 	return $result;
 }
-function addHltw($year, $hltwProcessed) {
-	foreach ( $hltwProcessed as $season ) {
+/**
+ * Adds an HLTW to the DB in hp_anual_values and provider_anual_values.
+ *
+ * @param unknown $year
+ *        	The year this HLTW is valid.
+ * @param unknown $hltwProcessed        	
+ * @return unknown
+ */
+function addHltw($providerStr, $year, $hltwProcessed) {
+	$insertQuery = "INSERT INTO `e-scan`.`hp_anual_window` (`pav_id`, `season`, `begin`, `end`) VALUES ";
+	
+	$first = true;
+	
+	$test;
+	
+	// $provider = "Halberstadtwerke";
+	foreach ( $hltwProcessed as $season => $value ) {
 		
-		foreach ( $season as $timeFrame ) {
+		foreach ( $value as $timeFrame ) {
 			$begin = $timeFrame->begin;
 			$end = $timeFrame->end;
+			
+			if ($first) {
+				$insertQuery = $insertQuery . '((SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '" && `year` = "' . $year . '")), "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
+				$first = false;
+			} else {
+				$insertQuery = $insertQuery . ', ((SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '" && `year` = "' . $year . '")), "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
+			}
 		}
 	}
 	
@@ -109,15 +155,33 @@ function addHltw($year, $hltwProcessed) {
 		die ( 'Verbindung schlug fehl: ' . mysql_error () );
 	}
 	
-	$result = mysql_query ( 'INSERT INTO  `e-scan`.`provider_anual_values` (`pav_id` ,`provider_id` ,`year` ,`info`) VALUES (NULL ,  "1",  "' . $year . '",  "");' );
+	// Add the newyear-rpovider-config to DB (into "provider_anual_values").
+	$result1 = mysql_query ( 'INSERT INTO  `e-scan`.`provider_anual_values` (`pav_id` ,`provider_id` ,`year` ,`info`) VALUES (NULL ,  (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '"),  "' . $year . '",  "");' );
 	
-	if (! $result) {
+	if (! $result1) {
 		$retMsg = "Ungültige Anfrage.";
 		die ( 'Ungültige Anfrage: ' . mysql_error () );
 	}
 	
-	return $result;
+	// Now add the HLTW-Frames into "hp_anual_window".
+	$result2 = mysql_query ( $insertQuery );
+	
+	if (! $result2) {
+		$retMsg = "Ungültige Anfrage.";
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	return $insertQuery;
 }
+/**
+ * Changes all information for a provider when editing it.
+ *
+ * @param unknown $oldProviderName
+ *        	The old name to uniquly identify the provider in the DB.
+ * @param unknown $newProviderName
+ *        	The new name of the provider.
+ * @return unknown Weather the query was successful or not.
+ */
 function changeProviderInformation($oldProviderName, $newProviderName) {
 	$retMsg = "OK";
 	
@@ -146,55 +210,77 @@ function changeProviderInformation($oldProviderName, $newProviderName) {
  *        	Name of the Provider to identify the hltw related to it.
  * @return Ambigous <string, multitype:multitype:multitype:string >
  */
-function getHLZF($provider) {
-	if ($provider == "Stadtwerke Wernigerode GmbH") {
+function getHLZF($provider, $year) {
+	
+	// SELECT * FROM `hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `provider` WHERE `name` = "Halberstadtwerke"));
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		die ( 'Verbindung schlug fehl: ' . mysql_error () );
+		// echo "Verbindung fehlgeschlagen!";
+	}
+	// echo 'Erfolgreich verbunden<br>';
+	
+	$result = mysql_query ( 'SELECT * FROM `e-scan`.`hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $provider . '")  && `year` = "' . $year . '" );' );
+	if (! $result) {
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+		// echo "ungültige Anfrage!";
+	}
+	
+	// $return = array (
+	// "spring" => array (
+	// array (
+	// "begin" => "10:00",
+	// "end" => "13:30"
+	// ),
+	// array (
+	// "begin" => "18:00",
+	// "end" => "19:30"
+	// )
+	// ),
+	// "summer" => array (
+	// array (
+	// "begin" => "11:00",
+	// "end" => "12:30"
+	// )
+	// ),
+	// "autum" => array (
+	// array (
+	// "begin" => "17:00",
+	// "end" => "18:45"
+	// )
+	// ),
+	// "winter" => array (
+	// array (
+	// "begin" => "11:15",
+	// "end" => "12:45"
+	// ),
+	// array (
+	// "begin" => "17:00",
+	// "end" => "19:15"
+	// )
+	// )
+	// );
+	
+	$return = array (
+			"spring" => array (),
+			"summer" => array (),
+			"autum" => array (),
+			"winter" => array () 
+	);
+	
+	while ( $row = mysql_fetch_assoc ( $result ) ) {
+		$season = $row ['season'];
+		$begin = $row ['begin'];
+		$end = $row ['end'];
 		
-		// $mysqlhost = "localhost"; // MySQL-Host angeben
-		// $mysqluser = "hlzf"; // MySQL-User angeben
-		// $mysqlpwd = "hlzf"; // Passwort angeben
-		
-		// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd );
-		
-		// DO SOMETHING
-		$return = array (
-				"spring" => array (
-						array (
-								"begin" => "10:00",
-								"end" => "13:30" 
-						),
-						array (
-								"begin" => "18:00",
-								"end" => "19:30" 
-						) 
-				),
-				"summer" => array (
-						array (
-								"begin" => "11:00",
-								"end" => "12:30" 
-						) 
-				),
-				"autum" => array (
-						array (
-								"begin" => "17:00",
-								"end" => "18:45" 
-						) 
-				),
-				"winter" => array (
-						array (
-								"begin" => "11:15",
-								"end" => "12:45" 
-						),
-						array (
-								"begin" => "17:00",
-								"end" => "19:15" 
-						) 
-				) 
+		$return [$season] [count ( $return [$season] )] = array (
+				"begin" => $begin,
+				"end" => $end 
 		);
-	} else {
-		$return = "nil";
 	}
 	
 	return $return;
+	// return $return;
 }
 
 ?>
