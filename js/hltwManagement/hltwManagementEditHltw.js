@@ -27,9 +27,9 @@ $(document).ready(function(e) {
 	    /*
 	     * If ready, process the date (containing the response from the query!)
 	     */
-	    alert(data);
+	    // alert(data);
 	    var status = JSON.parse(data);
-	    alert(status);
+	    // alert(status);
 
 	    document.getElementById("createHltwOKStatus").style.visibility = "visible";
 

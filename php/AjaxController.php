@@ -146,6 +146,14 @@ class AjaxController {
 				
 				break;
 			
+			case "delPavID" :
+				
+				$pavID = $_POST ['pavID'];
+				
+				$result = json_encode ( delPavID ( $pavID ) );
+				
+				break;
+			
 			case "changeProviderInformation" :
 				
 				$oldProviderName = $_POST ['oldProviderName'];
@@ -157,11 +165,11 @@ class AjaxController {
 			
 			case "addHltw" :
 				
-				$providerStr = $_POST ['providerStr'];
+				$providerID = json_decode ( $_POST ['providerID'] );
 				$year = json_decode ( $_POST ['year'] );
 				$hltwProcessed = json_decode ( $_POST ['hltw'] );
 				
-				$result = json_encode ( addHltw ( $providerStr, $year, $hltwProcessed ) );
+				$result = json_encode ( addHltw ( $providerID, $year, $hltwProcessed ) );
 				
 				break;
 			

@@ -7,46 +7,13 @@ $(document).ready(function(e) {
      * add 4 rows; one for each season!
      */
 
+    this.table = new Table("tableDiv");
+
     initTable();
 
     $("button#confirmButton").click(function() {
 	saveInDB();
     });
-
-    $("button#addTimeWindow").click(function() {
-	addRow();
-    });
-
-    function initTable() {
-
-	addRow();
-	addRow();
-	addRow();
-	addRow();
-
-	var table = document.getElementById("hltwTable");
-
-	// set one row for each season
-	for (var i = 0; i < 4; i++) {
-	    table.rows[i + 1].cells[0].getElementsByTagName("select")[0].selectedIndex = i;
-	}
-
-    }
-
-    function addRow() {
-
-	var table = document.getElementById("hltwTable");
-
-	var newRow = table.insertRow(table.rows.length);
-
-	var seasonCell = newRow.insertCell(0);
-	var beginTimeCell = newRow.insertCell(1);
-	var endTimeCell = newRow.insertCell(2);
-
-	seasonCell.innerHTML = "<select id=\"seasonSelect\"><option>Fr&uuml;hling</option><option>Sommer</option><option>Herbst</option><option>Winter</option></select>";
-	beginTimeCell.innerHTML = "<td><input id=\"beginTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
-	endTimeCell.innerHTML = "<td><input id=\"endTime\" type=\"time\" value=\"12:00\" step=\"900\" onchange=\" \"></td>";
-    }
 
     function saveInDB() {
 

@@ -2,29 +2,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script src="js/hltwManagement/hltwManagementEditHltw.js"></script>
+<script src="js/hltwManagement/table.js"></script>
+<!-- <script src="js/hltwManagement/hltwManagementEditHltw.js"></script> -->
 <title>Insert title here</title>
 </head>
 <body>
-	<h1>UNDER CONSTRUCTION</h1>
-	<label>Betreiber auswählen: </label>
-	<select id="yearSelect"></select>
-	<br>
-	<br>
-	<table id="hltwTable" border="1" style="text-align: center;">
-		<tr>
-			<td>Jahreszeit</td>
-			<td>Beginn (Uhrzeit)</td>
-			<td>Ende (Uhrzeit)</td>
-		</tr>
-	</table>
-	<button id="addTimeWindow">Zeitfenster hinzufügen</button>
-	<br>
-	<br>
-	<button id="confirmButton">OK</button>
-	<label id="createHltwOKStatus"
-		style="visibility: hidden; display: inline-block; text-align: center;"></label>
-	<br>
+
+	<div id="tableDiv"></div>
+
+	<script type="text/javascript">
+	this.table = new Table("tableDiv");
+	this.table.loadInformation();
+    </script>
 
 </body>
 </html>

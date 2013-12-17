@@ -21,7 +21,7 @@ function getProviders() {
 	while ( $row = mysql_fetch_assoc ( $result ) ) {
 		$name = $row ['name'];
 		$id = $row ['provider_id'];
-		$ret [$name] = $name;
+		$ret [$id] = $name;
 	}
 	// echo $ret["Stadtwerke Wernigerode GmbH"];
 	mysql_close ( $link );
@@ -36,7 +36,7 @@ function getProviders() {
  *        	The name of the Provider the HLTW belongs to.
  * @return multitype:unknown An array with the years in it.
  */
-function getHLTWs($provider) {
+function getHLTWs($providerId) {
 	
 	// $connection = mysql_connect ( $mysqlhost, $mysqluser, $mysqlpwd ) or die ( "Verbindungsversuch fehlgeschlagen" );
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
@@ -46,7 +46,7 @@ function getHLTWs($provider) {
 	}
 	// echo 'Erfolgreich verbunden<br>';
 	
-	$result = mysql_query ( 'SELECT  `year` FROM  `e-scan`.`provider_anual_values` WHERE  `provider_id` = ( SELECT `provider_id` FROM  `e-scan`.`provider` WHERE  `name` =  "' . $provider . '");' );
+	$result = mysql_query ( 'SELECT  `year`, `pav_id` FROM  `e-scan`.`provider_anual_values` WHERE  `provider_id` = "' . $providerId . '";' );
 	if (! $result) {
 		// die ( 'Ungültige Anfrage: ' . mysql_error () );
 		echo "ungültige Anfrage!";
@@ -56,7 +56,8 @@ function getHLTWs($provider) {
 	
 	while ( $row = mysql_fetch_assoc ( $result ) ) {
 		$year = $row ['year'];
-		$years [$year] = $year;
+		$pav_id = $row ['pav_id'];
+		$years [$pav_id] = $year;
 		// echo $year;
 	}
 	
@@ -118,6 +119,37 @@ function delProvider($providerName) {
 	return $result;
 }
 /**
+ * Deletes the pavID and through cascading all entries connected to it.
+ *
+ * @param int $pavID        	
+ * @return string Query-result
+ */
+function delPavID($pavID) {
+	$retMsg = "OK";
+	
+	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
+	if (! $link) {
+		$retMsg = "Verbindung schlug fehl.";
+		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
+	}
+	
+	$result = mysql_query ( "DELETE FROM `e-scan`.`provider_anual_values` WHERE `provider_anual_values`.`pav_id` = '" . $pavID . "';" );
+	if (! $result) {
+		$retMsg = "Ungültige Anfrage.";
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	$result2 = mysql_query ( "DELETE FROM `e-scan`.`hp_anual_window` WHERE `hp_anual_window`.`pav_id` = '" . $pavID . "';" );
+	if (! $result2) {
+		$retMsg2 = "Ungültige Anfrage.";
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	mysql_close ( $link );
+	
+	return $result2;
+}
+/**
  * Adds an HLTW to the DB in hp_anual_values and provider_anual_values.
  *
  * @param unknown $year
@@ -125,29 +157,7 @@ function delProvider($providerName) {
  * @param unknown $hltwProcessed        	
  * @return unknown
  */
-function addHltw($providerStr, $year, $hltwProcessed) {
-	$insertQuery = "INSERT INTO `e-scan`.`hp_anual_window` (`pav_id`, `season`, `begin`, `end`) VALUES ";
-	
-	$first = true;
-	
-	$test;
-	
-	// $provider = "Halberstadtwerke";
-	foreach ( $hltwProcessed as $season => $value ) {
-		
-		foreach ( $value as $timeFrame ) {
-			$begin = $timeFrame->begin;
-			$end = $timeFrame->end;
-			
-			if ($first) {
-				$insertQuery = $insertQuery . '((SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '" && `year` = "' . $year . '")), "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
-				$first = false;
-			} else {
-				$insertQuery = $insertQuery . ', ((SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '" && `year` = "' . $year . '")), "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
-			}
-		}
-	}
-	
+function addHltw($providerID, $year, $hltwProcessed) {
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
 	
 	if (! $link) {
@@ -155,18 +165,56 @@ function addHltw($providerStr, $year, $hltwProcessed) {
 		die ( 'Verbindung schlug fehl: ' . mysql_error () );
 	}
 	
-	// Add the newyear-rpovider-config to DB (into "provider_anual_values").
-	$result1 = mysql_query ( 'INSERT INTO  `e-scan`.`provider_anual_values` (`pav_id` ,`provider_id` ,`year` ,`info`) VALUES (NULL ,  (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $providerStr . '"),  "' . $year . '",  "");' );
+	/*
+	 * Add the newyear-provider-config to DB (into "provider_anual_values").
+	 */
+	$result1 = mysql_query ( 'INSERT INTO  `e-scan`.`provider_anual_values` (`pav_id` ,`provider_id` ,`year` ,`info`) VALUES (NULL ,  ' . $providerID . ',  "' . $year . '",  "");' );
 	
 	if (! $result1) {
 		$retMsg = "Ungültige Anfrage.";
 		die ( 'Ungültige Anfrage: ' . mysql_error () );
 	}
 	
-	// Now add the HLTW-Frames into "hp_anual_window".
-	$result2 = mysql_query ( $insertQuery );
+	/*
+	 * Get pav-id to use it for the next and final insert-query!
+	 */
+	$result2 = mysql_query ( 'SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = "' . $providerID . '" && `year` = "' . $year . '"' );
 	
 	if (! $result2) {
+		$retMsg = "Ungültige Anfrage.";
+		die ( 'Ungültige Anfrage: ' . mysql_error () );
+	}
+	
+	while ( $row = mysql_fetch_assoc ( $result2 ) ) {
+		$pavID = $row ['pav_id'];
+	}
+	
+	/*
+	 * Now send the data to the DB!
+	 */
+	$insertQuery = "INSERT INTO `e-scan`.`hp_anual_window` (`pav_id`, `season`, `begin`, `end`) VALUES ";
+	
+	$first = true;
+	
+	foreach ( $hltwProcessed as $season => $value ) {
+		
+		foreach ( $value as $timeFrame ) {
+			$begin = $timeFrame->begin;
+			$end = $timeFrame->end;
+			
+			if ($first) {
+				$insertQuery = $insertQuery . '( "' . $pavID . '", "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
+				$first = false;
+			} else {
+				$insertQuery = $insertQuery . ',( "' . $pavID . '", "' . $season . '", "' . $begin . ':00", "' . $end . ':00")';
+			}
+		}
+	}
+	
+	// Now add the HLTW-Frames into "hp_anual_window".
+	$result3 = mysql_query ( $insertQuery );
+	
+	if (! $result3) {
 		$retMsg = "Ungültige Anfrage.";
 		die ( 'Ungültige Anfrage: ' . mysql_error () );
 	}
@@ -195,7 +243,7 @@ function changeProviderInformation($oldProviderName, $newProviderName) {
 	
 	if (! $result) {
 		$retMsg = "Ungültige Anfrage.";
-		// die ( 'Ungültige Anfrage: ' . mysql_error () );
+		// die ( 'UngültigeAnfrage: ' . mysql_error () );
 	}
 	
 	mysql_close ( $link );
@@ -206,11 +254,11 @@ function changeProviderInformation($oldProviderName, $newProviderName) {
 /**
  *
  * @author fao
- * @param unknown $provider
- *        	Name of the Provider to identify the hltw related to it.
+ * @param unknown $providerId
+ *        	Id of the provider
  * @return Ambigous <string, multitype:multitype:multitype:string >
  */
-function getHLZF($provider, $year) {
+function getHLZF($providerId, $year) {
 	
 	// SELECT * FROM `hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `provider` WHERE `name` = "Halberstadtwerke"));
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
@@ -220,7 +268,7 @@ function getHLZF($provider, $year) {
 	}
 	// echo 'Erfolgreich verbunden<br>';
 	
-	$result = mysql_query ( 'SELECT * FROM `e-scan`.`hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `e-scan`.`provider` WHERE `name` = "' . $provider . '")  && `year` = "' . $year . '" );' );
+	$result = mysql_query ( 'SELECT * FROM `e-scan`.`hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = ' . $providerId . ' && `year` = "' . $year . '" );' );
 	if (! $result) {
 		die ( 'Ungültige Anfrage: ' . mysql_error () );
 		// echo "ungültige Anfrage!";

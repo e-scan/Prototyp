@@ -88,8 +88,10 @@ function getProviders(selectId) {
 	    var providers = JSON.parse(data);
 
 	    // and add each provider (incl. "nil") to the select-form as option
-	    jQuery.each(providers, function(i, val) {
-		editProviderSelect.options[editProviderSelect.options.length] = new Option(val, i);
+	    jQuery.each(providers, function(text, id) {
+		// alert(id);
+		// alert(text);
+		editProviderSelect.options[editProviderSelect.options.length] = new Option(id, text);
 	    });
 
 	}

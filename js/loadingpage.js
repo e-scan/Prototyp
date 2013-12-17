@@ -110,8 +110,10 @@ function readyProviders() {
 	    var providers = JSON.parse(data);
 
 	    // and add each provider (incl. "nil") to the select-form as option
-	    jQuery.each(providers, function(i, val) {
-		select.options[select.options.length] = new Option(val, i);
+	    jQuery.each(providers, function(text, id) {
+		// alert(id);
+		// alert(val);
+		select.options[select.options.length] = new Option(id, text);
 	    });
 
 	}
@@ -122,8 +124,8 @@ function readyProviders() {
      */
     $("select#providers").change(function(e) {
 	// use value for "WR" or text for "Wernigerode"
-	var strProvider = select.options[select.selectedIndex].value;
-
+	var idProvider = select.options[select.selectedIndex].value;
+	// alert(idProvider);
 	/*
 	 * Send the selected Provider (eg. WR) and receive the hlzf if correctly defined, else "nil" (string)
 	 */
@@ -132,15 +134,17 @@ function readyProviders() {
 	    url : "server.php",
 	    data : {
 		method : "getHLZF",
-		provider : strProvider,
+		provider : idProvider,
 		year : "2012"
 	    },
 	    success : function(data) {
 
+		// alert(data);
+
 		/*
 		 * If ready, process the date
 		 */
-		alert(data);
+		// alert(data);
 		hlzfFromDB = JSON.parse(data);
 
 		if (hlzfFromDB != "nil") {

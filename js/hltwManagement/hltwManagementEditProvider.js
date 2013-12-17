@@ -42,6 +42,14 @@ $(document).ready(function(e) {
 	}
 
     });
+
+    /*
+     * Load all information about the privider and past them into the mask for editing information
+     */
+    var providerEditSelect = document.getElementById("providerEditSelect");
+    var providerName = providerEditSelect.options[providerEditSelect.selectedIndex].text;
+    document.getElementById("providerName").value = providerName;
+
 });
 
 /**
@@ -52,23 +60,32 @@ function loadHltws() {
     chooseHltwSelect.options.length = 2;
 
     var providerEditSelect = document.getElementById("providerEditSelect");
-    var strProviderName = providerEditSelect.options[providerEditSelect.selectedIndex].value;
+    var providerId = providerEditSelect.options[providerEditSelect.selectedIndex].value;
+
+    // alert(strProviderName);
 
     $.ajax({
 	type : "POST",
 	url : "server.php",
 	data : {
 	    method : "getHLTWs",
-	    provider : strProviderName
+	    provider : providerId
 	},
 	success : function(data) {
+
+	    // alert(data);
 
 	    // the array transformed back to json
 	    var years = JSON.parse(data);
 
 	    // and add each provider (incl. "nil") to the select-form as option
-	    jQuery.each(years, function(i, val) {
-		chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
+	    // jQuery.each(years, function(i, val) {
+	    // chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
+	    // });
+	    jQuery.each(years, function(text, id) {
+		// alert(id);
+		// alert(val);
+		chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(id, text);
 	    });
 
 	}
