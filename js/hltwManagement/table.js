@@ -211,11 +211,11 @@ var Table = function(divId) {
 	    // TODO: think of using pavID (is at the moment for loadingPage not possible! (no year-select!))
 	    // alert(selectYear.selectedIndex);
 	    if (parseInt(selectYear.selectedIndex) == 1) {
-		alert("new HLTW");
+		// alert("new HLTW");
 		var yearValid = document.getElementById("yearInput").value;
 		// alert(yearValid);
 	    } else {
-		alert("update HLTW");
+		// alert("update HLTW");
 		var yearValid = selectYear.options[selectYear.selectedIndex].text;
 		// alert(yearValid);
 		var pavID = selectYear.options[selectYear.selectedIndex].value;
@@ -292,9 +292,9 @@ var Table = function(divId) {
 			/*
 			 * If ready, process the date (containing the response from the query!)
 			 */
-			alert(data);
+//			alert(data);
 			var status = JSON.parse(data);
-			alert(status);
+//			alert(status);
 
 		    }
 		});

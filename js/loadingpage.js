@@ -416,6 +416,7 @@ function generateGraph(resultFromFile) {
     if (graph != null) {
 	graph.destroy();
 	resetArrays();
+	// TODO: delete all providers and request them!
     }
 
     // lines contains the textfile but splittet into single lines [array]
