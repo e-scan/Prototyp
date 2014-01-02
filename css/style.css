@@ -39,8 +39,10 @@
 }
 
 #graph {
-	resize: both;
+	min-height: 100px;
+	min-width: 100px;
 	overflow: auto;
+	resize: both;
 }
 
 #content {

@@ -123,10 +123,9 @@ class AjaxController {
 			
 			case "getHLZF" :
 				
-				$provider = $_POST ['provider'];
-				$year = $_POST ['year'];
+				$pavID = $_POST ['pavID'];
 				
-				$result = json_encode ( getHLZF ( $provider, $year ) );
+				$result = json_encode ( getHLZF ( $pavID ) );
 				
 				break;
 			
@@ -140,9 +139,9 @@ class AjaxController {
 			
 			case "delProvider" :
 				
-				$providerName = $_POST ['providerName'];
+				$providerID = $_POST ['providerID'];
 				
-				$result = json_encode ( delProvider ( $providerName ) );
+				$result = json_encode ( delProvider ( $providerID ) );
 				
 				break;
 			

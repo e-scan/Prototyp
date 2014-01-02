@@ -99,7 +99,7 @@ function addProvider($providerName) {
  *        	The name of the provider (Primarykey in DB)
  * @return unknown Wheather the request was successfull or not.
  */
-function delProvider($providerName) {
+function delProvider($providerID) {
 	$retMsg = "OK";
 	
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
@@ -108,7 +108,7 @@ function delProvider($providerName) {
 		// die ( 'Verbindung schlug fehl: ' . mysql_error () );
 	}
 	
-	$result = mysql_query ( "DELETE FROM `e-scan`.`provider` WHERE `provider`.`name` = '" . $providerName . "';" );
+	$result = mysql_query ( "DELETE FROM `e-scan`.`provider` WHERE `provider`.`provider_id` = '" . $providerID . "';" );
 	if (! $result) {
 		$retMsg = "Ungültige Anfrage.";
 		// die ( 'Ungültige Anfrage: ' . mysql_error () );
@@ -258,7 +258,7 @@ function changeProviderInformation($oldProviderName, $newProviderName) {
  *        	Id of the provider
  * @return Ambigous <string, multitype:multitype:multitype:string >
  */
-function getHLZF($providerId, $year) {
+function getHLZF($pavID) {
 	
 	// SELECT * FROM `hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `provider_anual_values` WHERE `provider_id` = (SELECT `provider_id` FROM `provider` WHERE `name` = "Halberstadtwerke"));
 	$link = mysql_connect ( 'localhost', 'hlzf', 'hlzf' );
@@ -268,7 +268,7 @@ function getHLZF($providerId, $year) {
 	}
 	// echo 'Erfolgreich verbunden<br>';
 	
-	$result = mysql_query ( 'SELECT * FROM `e-scan`.`hp_anual_window` WHERE `pav_id` = (SELECT `pav_id` FROM `e-scan`.`provider_anual_values` WHERE `provider_id` = ' . $providerId . ' && `year` = "' . $year . '" );' );
+	$result = mysql_query ( 'SELECT * FROM `e-scan`.`hp_anual_window` WHERE `pav_id` = "' . $pavID . '";' );
 	if (! $result) {
 		die ( 'Ungültige Anfrage: ' . mysql_error () );
 		// echo "ungültige Anfrage!";
