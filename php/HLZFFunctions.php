@@ -32,7 +32,7 @@ function getProviders() {
  * Returns the years for which an HLTW exists for the specified provider.
  *
  * @author fao
- * @param unknown $provider
+ * @param unknown $providerId
  *        	The name of the Provider the HLTW belongs to.
  * @return multitype:unknown An array with the years in it.
  */
@@ -46,7 +46,7 @@ function getHLTWs($providerId) {
 	}
 	// echo 'Erfolgreich verbunden<br>';
 	
-	$result = mysql_query ( 'SELECT  `year`, `pav_id` FROM  `e-scan`.`provider_anual_values` WHERE  `provider_id` = "' . $providerId . '";' );
+	$result = mysql_query ( 'SELECT  `year`, `pav_id` FROM  `e-scan`.`provider_anual_values` WHERE  `provider_id` = "' . $providerId . '" ORDER BY `year`;' );
 	if (! $result) {
 		// die ( 'Ungültige Anfrage: ' . mysql_error () );
 		echo "ungültige Anfrage!";
@@ -54,10 +54,11 @@ function getHLTWs($providerId) {
 	
 	$years = array ();
 	
+	// NOTE: use year->id instead of id->year because json.parse sorts the assoc. array by key!
 	while ( $row = mysql_fetch_assoc ( $result ) ) {
 		$year = $row ['year'];
 		$pav_id = $row ['pav_id'];
-		$years [$pav_id] = $year;
+		$years [$year] = $pav_id;
 		// echo $year;
 	}
 	

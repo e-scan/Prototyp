@@ -73,23 +73,17 @@ function loadHltws() {
 		},
 		success : function(data) {
 
-			// alert(data);
+			alert(data);
 
 			// the array transformed back to json
 			var years = JSON.parse(data);
 
-			// and add each provider (incl. "nil") to the select-form as option
-			// jQuery.each(years, function(i, val) {
-			// chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(val, i);
-			// });
+			// NOTE: text and id are changed, because JSON.parse does automatically sort by key, we want it to be sorted by value, so the json-object holds year->id!
 			jQuery.each(years, function(text, id) {
 				// alert(id);
 				// alert(val);
-				chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(id, text);
+				chooseHltwSelect.options[chooseHltwSelect.options.length] = new Option(text, id);
 			});
-
-			// TODO: sorting does not work because "hinzufügen" and "Bitte auswählen" nehmen sonderpositionen ein!
-			// sortSelect(chooseHltwSelect);
 
 		}
 	});

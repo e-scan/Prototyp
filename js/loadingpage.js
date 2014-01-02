@@ -122,7 +122,7 @@ $(document).ready(function(e) {
 					jQuery.each(years, function(text, id) {
 						// alert(id);
 						// alert(val);
-						selectYear.options[selectYear.options.length] = new Option(id, text);
+						selectYear.options[selectYear.options.length] = new Option(text, id);
 					});
 
 				}
