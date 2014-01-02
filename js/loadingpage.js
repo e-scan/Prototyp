@@ -298,7 +298,7 @@ function readyProviders() {
 			jQuery.each(providers, function(text, id) {
 				// alert(id);
 				// alert(val);
-				select.options[select.options.length] = new Option(id, text);
+				select.options[select.options.length] = new Option(text, id);
 			});
 
 			var selectYear = document.getElementById("year");

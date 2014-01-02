@@ -91,7 +91,7 @@ function getProviders(selectId) {
 	    jQuery.each(providers, function(text, id) {
 		// alert(id);
 		// alert(text);
-		editProviderSelect.options[editProviderSelect.options.length] = new Option(id, text);
+		editProviderSelect.options[editProviderSelect.options.length] = new Option(text, id);
 	    });
 
 	}

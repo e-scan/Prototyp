@@ -73,7 +73,7 @@ function loadHltws() {
 		},
 		success : function(data) {
 
-			alert(data);
+			// alert(data);
 
 			// the array transformed back to json
 			var years = JSON.parse(data);

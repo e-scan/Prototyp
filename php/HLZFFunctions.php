@@ -21,7 +21,7 @@ function getProviders() {
 	while ( $row = mysql_fetch_assoc ( $result ) ) {
 		$name = $row ['name'];
 		$id = $row ['provider_id'];
-		$ret [$id] = $name;
+		$ret [$name] = $id;
 	}
 	// echo $ret["Stadtwerke Wernigerode GmbH"];
 	mysql_close ( $link );
