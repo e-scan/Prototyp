@@ -31,8 +31,11 @@ $("button#createProviderOK").click(function() {
 		document.getElementById("createProviderOKStatus").innerHTML = "Fehler bei DB!";
 		document.getElementById("createProviderOKStatus").style.backgroundColor = "#E05C5C";
 	    }
+	    
+	    getProviders("providerEditSelect");
 
 	}
     });
+
 
 });
