@@ -60,6 +60,8 @@ $(document).ready(function(e) {
 
 	}
 
+	document.getElementById("hltwManagementContainer").innerHTML = "";
+
     });
 
 });
