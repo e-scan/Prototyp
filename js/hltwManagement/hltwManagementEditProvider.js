@@ -104,7 +104,7 @@ $("button#editProviderOK").click(function() {
     var everythingOk = true;
 
     var newProviderNameStr = providerNameInput.value;
-    var oldProviderNameStr = providerEditSelect.options[providerEditSelect.selectedIndex].value;
+    var oldProviderNameStr = providerEditSelect.options[providerEditSelect.selectedIndex].text;
 
     if (newProviderNameStr == "") {
 	editProviderNewNameStatusLabel.innerHTML = "Bitte einen neuen Namen eingeben!";
@@ -155,7 +155,7 @@ $("button#editProviderOK").click(function() {
 	/*
 	 * Now send an ajax-request to a php-script to get all providers (from Database!) and set signal to show the user a change was made!
 	 */
-	getProviders();
+//	getProviders("providerEditSelect");
     } else {
 	editProviderOkStatusLabel.innerHTML = "Bitte erst Fehler korrigieren!";
 	editProviderOkStatusLabel.style.backgroundColor = "#E05C5C";

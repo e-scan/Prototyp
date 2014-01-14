@@ -1,6 +1,6 @@
 <?php
 include_once 'php/HLZFFunctions.php';
 
-delPavID("61");
+print getProviders()["Stadtwerke Wernigerode GmbH"];
 
 ?>
