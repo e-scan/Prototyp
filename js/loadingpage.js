@@ -16,6 +16,7 @@ var hlzfProcessed;
 
 // / this is the array dygraphs gets to draw the graphs; containing dates, and values for each line
 var contentForGraph;
+var contentForGraphSafe;
 
 // / an array of annotations if wished, empty if not (not null!)
 var annotations = new Array();
@@ -28,12 +29,16 @@ var graph = null;
 
 // / contains all dates, for easier and faster use instead of getting dates from graph
 var dates;
+var datesSafe;
 
 // / contains all values parsed to float
 var values;
 
 // / contains the highest value (peak) of all values
 var maxValue;
+
+// if maxValue is > 500KW then this is '20%' otherwise maxValue-100KW
+var criticalLine;
 
 // / contains the related date for maxValue
 var maxValueDate;
@@ -48,6 +53,12 @@ var yRangeOfGraph;
 var backgroundImageGraph = new Image();
 backgroundImageGraph.src = "data/eSCAN-Logo.png";
 
+// Number of violations against hltw
+var violationsOfHLTW;
+
+// whether the grid shell be drawn by dygraph or not
+var showGrid = false;
+
 /*
  * DEBUG
  */
@@ -61,6 +72,12 @@ $(document).ready(function(e) {
 	 * Here all necessary things are done so that all buttons and functions are ready for user-use!
 	 */
 
+	// get Options for dygraph and connect tabs
+	$("#tabs").tabs({
+		collapsible : true,
+		active : 1
+	});
+
 	// reset all arrays if the template is realoaded and some things are still in the cache
 	resetArrays();
 
@@ -71,6 +88,27 @@ $(document).ready(function(e) {
 		if (resultFromFile != null) {
 			generateGraph(resultFromFile);
 		}
+	});
+
+	$("#showGridCheckbox").change(function(e) {
+		var showGridCheckbox = document.getElementById("showGridCheckbox");
+		drawGrid(showGridCheckbox.checked);
+	});
+
+	$("#zoomSpring").click(function(e) {
+		zoomSeason("spring");
+	});
+
+	$("#zoomSummer").click(function(e) {
+		zoomSeason("summer");
+	});
+
+	$("#zoomAutum").click(function(e) {
+		zoomSeason("autum");
+	});
+
+	$("#zoomWinter").click(function(e) {
+		zoomSeason("winter");
 	});
 
 	/*
@@ -446,8 +484,21 @@ function handleFileSelect(evt) {
 
 		$("button#restore_position").click(function() {
 
-			graph.resetZoom();
+			if (datesSafe != null) {
 
+				// alert("reset!");
+
+				dates = datesSafe;
+				datesSafe = null;
+
+				contentForGraph = contentForGraphSafe;
+				contentForGraphSafe = null;
+
+				drawGraph();
+
+			}
+
+			resetZoom();
 			resetYRange();
 		});
 
@@ -506,37 +557,40 @@ function generateGraph(resultFromFile) {
 
 	// handle the first line separatly, because this contains the
 	// header-string
-	var tmp = lines[0].split(",");
+	var tmp = lines[0].split(";");
 	// loose.push(tmp[0]);
 	loose.push('Date');
 	loose.push(tmp[1]);
 
 	// declared here for performance-reasons!
 	var tmp = new Array(2);
+	var value = 0.0;
 
 	if (document.wattage.wattageGroup[0].checked) {
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
 		for (var i = 1; i < lines.length - 1; i++) {
 
-			tmp = lines[i].split(",");
+			tmp = lines[i].split(";");
 			dates.push(new Date(tmp[0]));
-			values.push(parseFloat(tmp[1] * 4));
+			value = parseFloat(tmp[1].replace(",", ".") * 4);
+			values.push(value);
 
 			// finding MaxValue
-			if (parseFloat(tmp[1] * 4) > maxValue) {
-				maxValue = parseFloat(tmp[1] * 4);
+			if (value > maxValue) {
+				maxValue = value;
 				maxValueDate = new Date(tmp[0]);
 			}
 		}
+
 	} else {
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
 		for (var i = 1; i < lines.length - 1; i++) {
-
-			tmp = lines[i].split(",");
+			// alert(tmp);
+			tmp = lines[i].split(";");
 			dates.push(new Date(tmp[0]));
-			values.push(parseFloat(tmp[1]));
+			values.push(parseFloat(tmp[1].replace(",", ".")));
 
 			// finding MaxValue
 			if (parseFloat(tmp[1]) > maxValue) {
@@ -546,11 +600,20 @@ function generateGraph(resultFromFile) {
 		}
 	}
 
+	// maxValue = 1000;
+
+	if (maxValue > 500) {
+		// define the value of the 20%-line
+		twentyPercentLine = maxValue * 0.8;
+		criticalLine = "20%";
+	} else {
+		// define the value of the 20%-line
+		twentyPercentLine = maxValue - 100.0;
+		criticalLine = "100KW";
+	}
+
 	// reset array
 	contentForGraph = new Array();
-
-	// define the value of the 20%-line
-	twentyPercentLine = maxValue * 0.8;
 
 	// declared here for performance-reasons!
 	var tmp = new Array(4);
@@ -637,6 +700,9 @@ function drawGraph() {
 
 			} else if (hlzfFromDB != null && hlzfFromDB != "nil") {
 
+				// reset number of violations of the hltw
+				violationsOfHLTW = 0;
+
 				/*
 				 * Now draw marks if necessary!
 				 */
@@ -650,6 +716,8 @@ function drawGraph() {
 							// continuing values over 20%
 							var start = i;
 
+							violationsOfHLTW++;
+
 							annotations.push({
 								series : 'MaxValue',
 								x : Date.parse(dates[start]),
@@ -659,18 +727,19 @@ function drawGraph() {
 							});
 
 							while (values[i] >= twentyPercentLine && hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
+								violationsOfHLTW++;
 								i++;
 							}
 
 							var end = i - 1;
 
-							annotations.push({
-								series : 'MaxValue',
-								x : Date.parse(dates[end]),
-								shortText : "!",
-								text : 'Ende',
+							// annotations.push({
+							// series : 'MaxValue',
+							// x : Date.parse(dates[end]),
+							// shortText : "!",
+							// text : 'Ende',
 							// cssClass:
-							});
+							// });
 
 							/*
 							 * Now fill the area
@@ -689,6 +758,9 @@ function drawGraph() {
 						// No value over 20% found, jump to next!
 						i++;
 					}
+
+					document.getElementById("violationOfHLTWLabel").innerHTML = "Verst&ouml;&szlig;e gegen das HLZF: " + violationsOfHLTW;
+
 				}
 
 			} else {
@@ -736,7 +808,8 @@ function drawGraph() {
 		},
 		labelsDivWidth : 120,
 		labelsSeparateLines : "<br/>",
-		labels : [ 'Datum', 'Verbrauch', '20%', 'MaxValue' ],
+		labels : [ 'Datum', 'Verbrauch', criticalLine, 'MaxValue' ],
+		drawGrid : showGrid,
 	// isZoomedIgnoreProgrammaticZoom : true
 	});
 
@@ -748,6 +821,18 @@ function drawGraph() {
 	graph.resize();
 }
 
+function drawGrid(value) {
+
+	// alert(value);
+
+	showGrid = value;
+
+	graph.updateOptions({
+		drawGrid : value
+	});
+
+}
+
 /**
  * @brief Resets some arrays to get rid of old stuff
  */
@@ -755,7 +840,12 @@ function resetArrays() {
 	dates = new Array();
 	values = new Array();
 
-	maxValue = 0;
+	datesSafe = null;
+	contentForGraphSafe = null;
+
+	maxValue = 777;
 	maxValueDate = new Date();
 	twentyPercentLine = 0;
+	violationsOfHLTW = 0;
+
 }

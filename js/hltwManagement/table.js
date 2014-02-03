@@ -125,56 +125,56 @@ var Table = function(divId) {
 		 * First, check if everything is ok!
 		 */
 		var everythingOk = true;
-		var seasonsContained = new Array(false, false, false, false);
-
-		/*
-		 * Check, if every season was used at least once!
-		 */
-		for (var i = 1; i < this.htmlTable.rows.length; i++) {
-
-			// work with season-index, because
-			// "Frühling" will cause the string
-			// not to be tested correctly!
-			var seasonIndex = this.htmlTable.rows[i].cells[0].getElementsByTagName("select")[0].selectedIndex;
-
-			// first, check season
-			switch (seasonIndex) {
-			case 0:
-				seasonsContained[0] = true;
-				break;
-			case 1:
-				seasonsContained[1] = true;
-				break;
-			case 2:
-				seasonsContained[2] = true;
-				break;
-			case 3:
-				seasonsContained[3] = true;
-				break;
-			default:
-				break;
-			}
-		}
-
-		// check, if every season was found!
-		for (var j = 0; j < seasonsContained.length; j++) {
-			if (seasonsContained[j] == false) {
-				everythingOk = false;
-				break;
-			}
-		}
-
-		// now mark the seasons red, if
-		// there were not all used!
-		for (var j = 1; j < this.htmlTable.rows.length; j++) {
-			if (!everythingOk) {
-				// red
-				this.htmlTable.rows[j].cells[0].getElementsByTagName("select")[0].style.backgroundColor = "#E05C5C";
-			} else {
-				// white (for reset)
-				this.htmlTable.rows[j].cells[0].getElementsByTagName("select")[0].style.backgroundColor = "#FFFFFF";
-			}
-		}
+		// var seasonsContained = new Array(false, false, false, false);
+		//
+		// /*
+		// * Check, if every season was used at least once!
+		// */
+		// for (var i = 1; i < this.htmlTable.rows.length; i++) {
+		//
+		// // work with season-index, because
+		// // "Frühling" will cause the string
+		// // not to be tested correctly!
+		// var seasonIndex = this.htmlTable.rows[i].cells[0].getElementsByTagName("select")[0].selectedIndex;
+		//
+		// // first, check season
+		// switch (seasonIndex) {
+		// case 0:
+		// seasonsContained[0] = true;
+		// break;
+		// case 1:
+		// seasonsContained[1] = true;
+		// break;
+		// case 2:
+		// seasonsContained[2] = true;
+		// break;
+		// case 3:
+		// seasonsContained[3] = true;
+		// break;
+		// default:
+		// break;
+		// }
+		// }
+		//
+		// // check, if every season was found!
+		// for (var j = 0; j < seasonsContained.length; j++) {
+		// if (seasonsContained[j] == false) {
+		// everythingOk = false;
+		// break;
+		// }
+		// }
+		//
+		// // now mark the seasons red, if
+		// // there were not all used!
+		// for (var j = 1; j < this.htmlTable.rows.length; j++) {
+		// if (!everythingOk) {
+		// // red
+		// this.htmlTable.rows[j].cells[0].getElementsByTagName("select")[0].style.backgroundColor = "#E05C5C";
+		// } else {
+		// // white (for reset)
+		// this.htmlTable.rows[j].cells[0].getElementsByTagName("select")[0].style.backgroundColor = "#FFFFFF";
+		// }
+		// }
 
 		// Check if the times are plausible
 		// (begin-time >= end-time.

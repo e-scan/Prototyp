@@ -1,44 +1,81 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript" src="js/loadingpage.js"></script>
+
 </head>
 
 <div id="loadingpage-container">
 
-	<p>
-		Hier könnten allgemeine Informationen zur Beschaffenheit der Dateien
-		stehen!<br>(simple.txt ist für dieses Beispiel formatiert; es
-		handelt sich um einen gesamten Jahres-Lastgang (Originaldaten!)) <br>
-		(Eine Anleitung um einen Lastgang passend zu formatieren gibt es <a
-			href="doc/HowTo-Lastgangumwandlung_v001.pdf">hier</a>.<br>Alternativ
-		einfach eine Mail schreiben!<br>(Dies ist eine vorübergehende
-		Lösung, bis eine schöne Lösung gefunden ist!))<br> <b>Vorsicht,
-			dies hier ist die noch experimentellere Ecke!</b> <br> <b>Zum
-			Zoomen (Horizontal und Vertikal) mit gedrückter Maustaste einen
-			Bereich im Diagramm markieren!<br> Um das Diagramm zu
-			verschieben, mit "shift" und gedrückter Maustaste die Maus bewegen!
-		</b>
-
-	</p>
-
-	<!-- here comes the file-input with progressbar etc! -->
-	<form name="wattage">
-		<label>Einheit des Verbrauchs:</label> <input type="radio"
-			name="wattageGroup" value="KWh" checked="checked">KW<input
-			type="radio" name="wattageGroup" value="KW">KWh
-
-	</form>
-	<br> <input type="file" id="files" name="file" />
-	<button onclick="abortRead();">Laden abbrechen</button>
-
-	<div id="HLZF_toolbox">
-		<label>HLZF des Providers:</label> <select id="providers">
-		</select> <select id="year"></select>
-	</div>
-
 	<br>
-	<div id="progress_bar">
-		<div class="percent">0%</div>
+
+	<h1>Lastganganalyse</h1>
+
+	<!-- Here the toolbox with tooles related to the graph comes in -->
+	<div id="graph_toolbox">
+		<div id="tabs">
+			<ul>
+				<li><a href="#tab-information">Informationen</a></li>
+				<li><a href="#tab-fileUpload">Lastgang</a></li>
+				<li><a href="#tab-hltw">Hochlastzeitfenster</a></li>
+				<li><a href="#tabs-graph-zoom">Zoom</a></li>
+				<li><a href="#tabs-1">Darstellung</a></li>
+			</ul>
+			<div id="tab-fileUpload">
+				<!-- here comes the file-input with progressbar etc! -->
+				<form name="wattage">
+					<label>Einheit des Verbrauchs:</label> <input type="radio"
+						name="wattageGroup" value="KWh" checked="checked">KW<input
+						type="radio" name="wattageGroup" value="KW">KWh
+
+				</form>
+				<br> <input type="file" id="files" name="file" />
+				<button onclick="abortRead();">Laden abbrechen</button>
+				<br>
+				<div id="progress_bar">
+					<div class="percent">0%</div>
+				</div>
+			</div>
+			<div id="tab-hltw">
+				<label>HLZF des Providers:</label> <select id="providers">
+				</select> <select id="year"></select> <label id="violationOfHLTWLabel"></label>
+			</div>
+			<div id="tabs-graph-zoom">
+				</label> <label>Auf Spitzen zoomen, in</label>
+				<button id="zoom_month">Monat</button>
+				<button id="zoom_week">Woche</button>
+				<button id="zoom_day">Tag</button>
+				<button id="zoom_20_max">20% - Max</button>
+				<br> <label>Jahreszeit zoomen: </label>
+				<button id="zoomSpring">Frühling</button>
+				<button id="zoomSummer">Sommer</button>
+				<button id="zoomAutum">Herbst</button>
+				<button id="zoomWinter">Winter</button>
+				<br>
+				<button id="restore_position">Position zurücksetzen</button>
+			</div>
+			<div id="tabs-1">
+				<input id="showGridCheckbox" type="checkbox">mit Gitternetz</input>
+			</div>
+			<div id="tab-information">
+				<p>
+					Hier könnten allgemeine Informationen zur Beschaffenheit der
+					Dateien stehen!<br>(simple.txt ist für dieses Beispiel
+					formatiert; es handelt sich um einen gesamten Jahres-Lastgang
+					(Originaldaten!)) <br> (Eine Anleitung um einen Lastgang
+					passend zu formatieren gibt es <a
+						href="doc/HowTo-Lastgangumwandlung_v001.pdf">hier</a>.<br>Alternativ
+					einfach eine Mail schreiben!<br>(Dies ist eine vorübergehende
+					Lösung, bis eine schöne Lösung gefunden ist!))<br> <b>Vorsicht,
+						dies hier ist die noch experimentellere Ecke!</b> <br> <b>Zum
+						Zoomen (Horizontal und Vertikal) mit gedrückter Maustaste einen
+						Bereich im Diagramm markieren!<br> Um das Diagramm zu
+						verschieben, mit "shift" und gedrückter Maustaste die Maus
+						bewegen!
+					</b>
+
+				</p>
+			</div>
+		</div>
 	</div>
 
 	<!-- here the graph will be drawn in! -->
@@ -46,18 +83,7 @@
 		<div id="innerGraph" style="height: 95%; height: 95%;"></div>
 	</div>
 
-	<!-- Here the toolbox with tooles related to the graph comes in -->
-	<div id="graph_toolbox">
-		<br> <label>Zoom definieren:</label>
-		<button id="restore_position">Position zurücksetzen</button>
-		<label><b> | </b></label> <label>Auf Spitzen zoomen, in</label>
-		<button id="zoom_month">Monat</button>
-		<button id="zoom_week">Woche</button>
-		<button id="zoom_day">Tag</button>
-		<button id="zoom_20_max">20% - Max</button>
-	</div>
-
-	<!-- here the graph will be drawn in! -->
+	<!-- here the graph-png will be drawn in! -->
 	<div id="graph-img">
 		<button id="generate_png">erzeuge PNG</button>
 		<br> <img id="graph_png">
