@@ -28,7 +28,7 @@ var hlzfFromDB = null;
 var graph = null;
 
 // / contains all dates, for easier and faster use instead of getting dates from graph
-var dates;
+var dates = new Array();
 var datesSafe;
 
 // / contains all values parsed to float
@@ -77,6 +77,7 @@ $(document).ready(function(e) {
 		collapsible : true,
 		active : 1
 	});
+	// $( "#tabs" ).accordion();
 
 	// reset all arrays if the template is realoaded and some things are still in the cache
 	resetArrays();
@@ -547,7 +548,7 @@ function generateGraph(resultFromFile) {
 	}
 
 	// lines contains the textfile but splittet into single lines [array]
-	var lines = resultFromFile.split('\n');
+	var lines = resultFromFile.split('\r');
 
 	// loose contains lines but date and value are separated [array]
 	var loose = new Array();
@@ -566,20 +567,39 @@ function generateGraph(resultFromFile) {
 	var tmp = new Array(2);
 	var value = 0.0;
 
+	// dates = new Array();
+
+	// TODO: Faktor mit 1 oder mit 4
+	// TODO: wenn notwendig danach die schleife mit wert*4
 	if (document.wattage.wattageGroup[0].checked) {
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
 		for (var i = 1; i < lines.length - 1; i++) {
 
-			tmp = lines[i].split(";");
-			dates.push(new Date(tmp[0]));
-			value = parseFloat(tmp[1].replace(",", ".") * 4);
-			values.push(value);
+			tmp = lines[i].split(';');
 
-			// finding MaxValue
-			if (value > maxValue) {
-				maxValue = value;
-				maxValueDate = new Date(tmp[0]);
+			// alert(tmp[0] + " " + tmp[1]);
+			// alert(tmp.length);
+
+			// TODO: Check von Leerzeilen!
+			if (tmp[0] !== "00.01.1900 00:00") {
+
+				var datesLocal = tmp[0].split(' ');
+				var date = datesLocal[0].split('.');
+				var time = datesLocal[1].split(':');
+				var dateObj = new Date(date[2], date[1] - 1, date[0] - 1, time[0], time[1], 0, 0);
+				dates.push(dateObj);
+				value = parseFloat(tmp[1].replace(',', '.') * 4);
+				values.push(value);
+
+				// alert(dateObj + " val: " + value);
+
+				// finding MaxValue
+				if (value > maxValue) {
+					maxValue = value;
+					maxValueDate = dateObj;
+				}
+
 			}
 		}
 
@@ -587,15 +607,24 @@ function generateGraph(resultFromFile) {
 		// for all other, split into groups and push into loose
 		// and while doing that, find the maxValue
 		for (var i = 1; i < lines.length - 1; i++) {
-			// alert(tmp);
-			tmp = lines[i].split(";");
-			dates.push(new Date(tmp[0]));
-			values.push(parseFloat(tmp[1].replace(",", ".")));
+			if (tmp[0] !== "00.01.1900 00:00") {
 
-			// finding MaxValue
-			if (parseFloat(tmp[1]) > maxValue) {
-				maxValue = parseFloat(tmp[1]);
-				maxValueDate = new Date(tmp[0]);
+				var datesLocal = tmp[0].split(' ');
+				var date = datesLocal[0].split('.');
+				var time = datesLocal[1].split(':');
+				var dateObj = new Date(date[2], date[1] - 1, date[0] - 1, time[0], time[1], 0, 0);
+				dates.push(dateObj);
+				value = parseFloat(tmp[1].replace(',', '.'));
+				values.push(value);
+
+				// alert(dateObj + " val: " + value);
+
+				// finding MaxValue
+				if (value > maxValue) {
+					maxValue = value;
+					maxValueDate = dateObj;
+				}
+
 			}
 		}
 	}
@@ -663,7 +692,8 @@ function drawGraph() {
 				 * Now draw marks if necessary!
 				 */
 				for (var i = 0; i < values.length;) {
-
+					// getDates();
+					// alert("test");
 					var season = getSeason(dates[i].getMonth());
 
 					if (hlzfProcessed[season][dates[i].getHours() + ':' + dates[i].getMinutes()]) {
@@ -702,6 +732,7 @@ function drawGraph() {
 
 				// reset number of violations of the hltw
 				violationsOfHLTW = 0;
+				// alert("test");
 
 				/*
 				 * Now draw marks if necessary!
@@ -763,38 +794,40 @@ function drawGraph() {
 
 				}
 
-			} else {
-
-				for (var i = 0; i < values.length;) {
-
-					if (values[i] >= twentyPercentLine) {
-						// Found a value over 20%; seach for the end of the
-						// continuing values over 20%
-						var start = i;
-
-						while (i < values.length && values[i] >= twentyPercentLine) {
-							i++;
-						}
-
-						var end = i;
-
-						/*
-						 * Now fill the area
-						 */
-						var canvas_left_x = graph.toDomXCoord(dates[start]);
-						var canvas_right_x = graph.toDomXCoord(dates[end]);
-						var canvas_width = canvas_right_x - canvas_left_x;
-						var canvas_y = graph.toDomYCoord(maxValue);
-						var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
-						canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
-
-					} else {
-						// No value over 20% found, jump to next!
-						i++;
-					}
-				}
-
 			}
+
+			// else {
+			//
+			// for (var i = 0; i < values.length;) {
+			//
+			// if (values[i] >= twentyPercentLine) {
+			// // Found a value over 20%; seach for the end of the
+			// // continuing values over 20%
+			// var start = i;
+			//
+			// while (i < values.length && values[i] >= twentyPercentLine) {
+			// i++;
+			// }
+			//
+			// var end = i;
+			//
+			// /*
+			// * Now fill the area
+			// */
+			// var canvas_left_x = graph.toDomXCoord(dates[start]);
+			// var canvas_right_x = graph.toDomXCoord(dates[end]);
+			// var canvas_width = canvas_right_x - canvas_left_x;
+			// var canvas_y = graph.toDomYCoord(maxValue);
+			// var canvas_height = graph.toDomYCoord(twentyPercentLine) - canvas_y;
+			// canvas.fillRect(canvas_left_x, canvas_y, canvas_width, canvas_height);
+			//
+			// } else {
+			// // No value over 20% found, jump to next!
+			// i++;
+			// }
+			// }
+			//
+			// }
 
 		},
 		// legend : 'always',
@@ -819,6 +852,11 @@ function drawGraph() {
 		graph.setAnnotations(new Array());
 
 	graph.resize();
+}
+
+function getDates() {
+	// alert("Heureka");
+	// return ("Heureka!");
 }
 
 function drawGrid(value) {
