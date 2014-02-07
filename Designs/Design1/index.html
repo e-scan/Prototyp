@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<!-- 
+<link rel="stylesheet"
+	href="jquery-ui-1.10.4/themes/base/jquery.ui.accordion.css">
+
+<link rel="stylesheet"
+	href="jquery-ui-1.10.4/themes/base/jquery.ui.tabs.css">
+-->
+
+<link rel="stylesheet"
+	href="jquery-ui-1.10.4/themes/smoothness/jquery-ui-1.10.4.custom.css">
+
+<link rel="stylesheet" href="style.css">
+
+<!--  <link rel="stylesheet"
+	href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
+
+<script src="jquery-2.1.0.min.js"></script>
+<script src="jquery-ui-1.10.4/ui/minified/jquery.ui.core.min.js" /></script>
+<script src="jquery-ui-1.10.4/ui/minified/jquery.ui.min.js" /></script>
+<script src="jquery-ui-1.10.4/ui/minified/jquery.ui.widget.min.js" /></script>
+
+<script src="jquery-ui-1.10.4/ui/minified/jquery.ui.accordion.min.js" /></script>
+<script src="jquery-ui-1.10.4/ui/minified/jquery.ui.tabs.min.js" /></script>
+
+<title>Design1</title>
+
+<script type="text/javascript">
+	$(function() {
+
+		$("#accordion").accordion({
+			collapsible : true
+		});
+
+		$("#tabs").tabs({
+			collapsible : true
+		});
+
+		var tabs = $("#tabs");
+
+		// close icon: removing the tab on click
+		tabs.delegate("span.ui-icon-close", "click", function() {
+			var panelId = $(this).closest("li").remove().attr("aria-controls");
+			$("#" + panelId).remove();
+			tabs.tabs("refresh");
+		});
+
+	});
+</script>
+
+<style type="text/css">
+#tabs li .ui-icon-close {
+	float: left;
+	margin: 0.4em 0.2em 0 0;
+	cursor: pointer;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="head">Head</div>
+
+	<div id="tabs">
+		<ul>
+			<li><a href="#LastgangAnalysis">Lastganganalyse</a><span
+				class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
+			<li><a href="#Hochlastzeitfenster">Hochlastzeitfenster</a><span
+				class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
+		</ul>
+
+		<div id="LastgangAnalysis" class="lastganganalyse">
+			<div class="options">
+				<div id="accordion">
+					<h3>Lastgang hochladen</h3>
+					<div>
+						<input type="file">
+					</div>
+					<h3>Hochlastzeitfenster</h3>
+					<div>blablabla</div>
+					<h3>Informationen</h3>
+					<div>test</div>
+				</div>
+			</div>
+			<div class="content">
+				<img alt="Dygraph-Bild" src="dygraph_800px.png">
+			</div>
+		</div>
+
+		<div id="Hochlastzeitfenster">
+			<p>bla</p>
+		</div>
+
+	</div>
+
+</body>
+</html>
