@@ -46,15 +46,16 @@
 				<button id="zoom_day">Tag</button>
 				<button id="zoom_20_max">20% - Max</button>
 				<br> <label>Jahreszeit zoomen: </label>
+				<button id="zoomWinter1">Winter (Jan+Feb)</button>
 				<button id="zoomSpring">Frühling</button>
 				<button id="zoomSummer">Sommer</button>
 				<button id="zoomAutum">Herbst</button>
-				<button id="zoomWinter">Winter</button>
+				<button id="zoomWinter2">Winter (Dez)</button>
 				<br>
 				<button id="restore_position">Position zurücksetzen</button>
 			</div>
 			<div id="tabs-1">
-				<input id="showGridCheckbox" type="checkbox">mit Gitternetz</input>
+				<input id="showGridCheckbox" type="checkbox">mit Gitternetz
 			</div>
 			<div id="tab-information">
 				<p>
@@ -83,14 +84,19 @@
 		<div id="innerGraph" style="height: 95%; height: 95%;"></div>
 	</div>
 
+	<div id="frequencyGraph" style="height: 500px; width: 95%;"></div>
+
 	<!-- here the graph-png will be drawn in! -->
 	<div id="graph-img">
-		<button id="generate_png">erzeuge PNG</button>
+		<button id="generate_png_Graph">erzeuge PNG (Lastgang)</button>
+		<button id="generate_png_FrequencyGraph">erzeuge PNG
+			(Häufigkeitsdiagramm)</button>
 		<br> <img id="graph_png">
 	</div>
 
 	<script type="text/javascript">
-		document.getElementById('files').addEventListener('change', handleFileSelect, false);
+		document.getElementById('files').addEventListener('change',
+				handleFileSelect, false);
 	</script>
 
 

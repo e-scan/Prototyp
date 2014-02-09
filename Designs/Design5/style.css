@@ -10,8 +10,9 @@
 	
 }
 
-.body {
-	overflow: hidden;
+body {
+	overflow-x: hidden;
+	overflow-y: scroll;
 }
 
 .sidebarmenu {
@@ -25,5 +26,6 @@
 
 .content {
 	width: 70%;
+	height: 500px;
 	background-color: #ffaaaa;
 }
