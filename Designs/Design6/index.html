@@ -1,43 +1,130 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Design6</title>
+<title>Design 6</title>
+
+<link rel="stylesheet" href="jquery.mobile-1.4.0/jquery.mobile-1.4.0.css" />
+<link rel="stylesheet" href="jquery.mobile-1.4.0/jquery.mobile.icons-1.4.0.min.css" />
 
 <script src="jquery-2.1.0.js"></script>
-<script src="jquery.mobile-1.4.0.js"></script>
-<script src="index.js"></script>
+<script src="jquery.mobile-1.4.0/jquery.mobile-1.4.0.js"></script>
 
-<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
-<link rel="stylesheet" href="themes/simple.css" />
+<script type="text/javascript">
+    $(document).on("pagecreate", function() {
+	$("body > [data-role='panel']").panel();
+	$("body > [data-role='panel'] [data-role='listview']").listview();
+	$("body > [data-role='panel'] [data-role='navbar']").navbar();
+	$("body > [data-role='panel'] [data-role='slider']").slider();
+	$("body > [data-role='panel'] [data-role='collapsible-set']").collapsibleset();
+	$("body > [data-role='panel'] [data-role='collapsible']").collapsible();
+    });
+    $(document).one("pageshow", function() {
+	$("body > [data-role='header']").toolbar();
+	$("body > [data-role='header'] [data-role='navbar']").navbar();
+    });
+</script>
 
 </head>
 <body>
 
-	<div data-role="page" >
+	<!-- MAIN-PAGE -->
 
-		<!-- 
-		<div data-role="panel" id="optionsPanel" data-position="right"
-			data-theme="a">bla</div>
- -->
-		<div data-role="header" id="header">
-			<h1>Header</h1>
-			<a href="#"
-				class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-gear">Options</a>
+	<div data-role="page" data-theme="a">
+
+		<div data-role="header" data-position="inline">
+			<h1>It Worked!</h1>
+
+			<div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-right">
+				<a href="#loginPanel" class="ui-btn ui-btn-icon-left ui-icon-lock">Login</a> <a href="#profilePanel" class="ui-btn ui-btn-icon-left ui-icon-user">Profil</a> <a href="#settingsPanel" class="ui-btn ui-btn-icon-left ui-icon-gear">Einstellungen</a>
+			</div>
+
+			<a href="#appsPanel" class="ui-btn ui-btn-icon-left ui-icon-plus">App öffnen</a>
+
 		</div>
 
-		<div role="main" class="ui-content" id="contentPage">
-			<p>Content</p>
+		<div role="main" data-role="content" data-theme="a">
+			<h1>Inhalt</h1>
 		</div>
 
-		<div data-role="footer" id="footer">
-			<h4>Footer</h4>
+		<div data-role="footer">
+			<h4>Page Footer</h4>
 		</div>
 
 	</div>
 
+	<!-- PANELS -->
+
+	<div data-role="panel" id="loginPanel" data-position="right" data-display="push" data-theme="a">
+		<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
+			<li><h1>Login</h1></li>
+			<li><label for="usernameInput">Benutzername:</label> <input type="text" name="usernameInput" id="text-basic" value=""> <label for="passwordInput">Password:</label> <input type="password" id="passwordInput" value="" autocomplete="off"></li>
+			<li><label for="stayLoggedInSlider">Eingeloggt bleiben:</label> <select name="stayLoggedInSlider" id="stayLoggedInSlider" data-role="slider">
+					<option value="off">Off</option>
+					<option value="on">On</option>
+			</select></li>
+		</ul>
+
+	</div>
+
+	<div data-role="panel" id="profilePanel" data-position="right" data-display="push" data-theme="a">
+		<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
+		</ul>
+	</div>
+
+	<div data-role="panel" id="settingsPanel" data-position="right" data-display="push" data-theme="a">
+		<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
+		</ul>
+	</div>
+
+	<div data-role="panel" id="appsPanel" data-position="left" data-display="overlay" data-theme="a">
+		<ul data-role="listview">
+			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
+			<li><div data-role="collapsible" data-inset="false">
+					<h3>Pets</h3>
+					<ul data-role="listview">
+						<li><a href="#">Canary</a></li>
+						<li><a href="#">Cat</a></li>
+						<li><a href="#">Dog</a></li>
+						<li><a href="#">Gerbil</a></li>
+						<li><a href="#">Iguana</a></li>
+						<li><a href="#">Mouse</a></li>
+					</ul>
+				</div>
+				<!-- /collapsible -->
+				<div data-role="collapsible" data-inset="false">
+					<h3>Farm animals</h3>
+					<ul data-role="listview">
+						<li><a href="#">Chicken</a></li>
+						<li><a href="#">Cow</a></li>
+						<li><a href="#">Duck</a></li>
+						<li><a href="#">Horse</a></li>
+						<li><a href="#">Pig</a></li>
+						<li><a href="#">Sheep</a></li>
+					</ul>
+				</div>
+				<!-- /collapsible -->
+				<div data-role="collapsible" data-inset="false">
+					<h3>Wild Animals</h3>
+					<ul data-role="listview">
+						<li><a href="#">Aardvark</a></li>
+						<li><a href="#">Alligator</a></li>
+						<li><a href="#">Ant</a></li>
+						<li><a href="#">Bear</a></li>
+						<li><a href="#">Beaver</a></li>
+						<li><a href="#">Cougar</a></li>
+						<li><a href="#">Dingo</a></li>
+					</ul>
+				</div>
+				<!-- /collapsible --></li>
+		</ul>
+	</div>
 
 </body>
 </html>
