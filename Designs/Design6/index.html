@@ -15,18 +15,11 @@
 
 <script type="text/javascript">
     $(document).on("pagecreate", function() {
-	$("body > [data-role='panel']").panel();
-	$("body > [data-role='panel'] [data-role='listview']").listview();
-	$("body > [data-role='panel'] [data-role='navbar']").navbar();
-	$("body > [data-role='panel'] [data-role='slider']").slider();
-	$("body > [data-role='panel'] [data-role='collapsible-set']").collapsibleset();
-	$("body > [data-role='panel'] [data-role='collapsible']").collapsible();
-	$("body > [data-role='panel'] [data-role='controlgroup']").controlgroup();
+	$('body').trigger('create');
     });
 
     $(document).one("pageshow", function() {
-	$("body > [data-role='header']").toolbar();
-	$("body > [data-role='header'] [data-role='navbar']").navbar();
+	$('body').trigger('create');
     });
 
     $(document).on("swipeleft swiperight", "#page", function(e) {
@@ -49,6 +42,35 @@
 	});
 
     }
+
+    function addLastgang() {
+
+	$.get('lastgangMenu.html', function(data) {
+	    $("#list").append(data).trigger('create');
+	});
+
+    }
+
+    function addProvider() {
+
+	$.get('providerMenu.html', function(data) {
+	    $("#list").append(data).trigger('create');
+	});
+
+    }
+
+    function addiso() {
+
+	$.get('isoMenu.html', function(data) {
+	    $("#list").append(data).trigger('create');
+	});
+
+    }
+    
+    function deleteLast(){
+	$('#list li:last-child').remove();
+    }
+    
 </script>
 
 <style>
@@ -126,7 +148,7 @@ dd {
 			<div role="main" class="ui-content" id="deleteDialog">
 				<h3 class="ui-title">APP wirklich schliessen?</h3>
 				<p>Es gehen evtl. Daten verloren!</p>
-				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Abbrechen</a> <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Schliessen</a>
+				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Abbrechen</a> <a onclick="deleteLast();" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Schliessen</a>
 			</div>
 
 		</div>
@@ -139,9 +161,9 @@ dd {
 			<div role="main" class="ui-content" id="openDialog">
 				<h3 class="ui-title">Welche APP soll geöffnet werden?</h3>
 				<ul data-role="listview" data-inset="true">
-					<li data-icon="info" id="skull"><a href="#">Lastganganalyse</a></li>
-					<li data-icon="delete"><a href="#">Versorger</a></li>
-					<li data-icon="gear"><a href="#">ISO-50001</a></li>
+					<li data-icon="info" id="skull"><a onclick="addLastgang();">Lastganganalyse</a></li>
+					<li data-icon="delete"><a onclick="addProvider();">Versorger</a></li>
+					<li data-icon="gear"><a onclick="addiso();"">ISO-50001</a></li>
 				</ul>
 				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
 			</div>
@@ -181,46 +203,7 @@ dd {
 		<ul data-role="listview">
 			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
 			<li><a href="#popupOpen" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-plus ui-btn-icon-left ui-btn-b">Öffne APP</a></li>
-			<li><div data-role="collapsible" data-inset="false">
-					<h3>
-						Lastganganalyse<span class="ui-li-count">3</span>
-					</h3>
-					<ul data-role="listview">
-						<li><a href="#popupDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b">Delete page...</a></li>
-						<li><a onclick='loadLastgang();' href="#">Lastgang</a></li>
-						<li><a href="#frequency">Häufigkeitsdiagramm</a></li>
-						<li><fieldset id="contlgrp" data-role="controlgroup" data-type="horizontal" data-mini="true">
-								<legend>Einstellungen</legend>
-								<input type="radio" name="radio-choice-b" id="radio-choice-c" value="list" checked="checked"> <label for="radio-choice-c">Bla</label> <input type="radio" name="radio-choice-b" id="radio-choice-d" value="grid"> <label for="radio-choice-d">Bli</label> <input type="radio" name="radio-choice-b" id="radio-choice-e" value="gallery"> <label for="radio-choice-e">Blubb</label>
-							</fieldset></li>
-						<li><fieldset>
-								<label for="file">Lastgang:</label> <input type="file" name="file" id="file" value="">
-							</fieldset></li>
-						<li><fieldset data-role="controlgroup">
-								<legend>Diagramm-Darstellung</legend>
-								<input type="checkbox" name="checkbox-1a" id="checkbox-1a"> <label for="checkbox-1a">Zeige Gitternetz</label> <input type="checkbox" name="checkbox-2a" id="checkbox-2a"> <label for="checkbox-2a">Zeige 20%/100KW-Linie</label> <input type="checkbox" name="checkbox-3a" id="checkbox-3a"> <label for="checkbox-3a">Zeige Datum</label>
-							</fieldset></li>
-					</ul>
-				</div> <!-- /collapsible -->
-				<div data-role="collapsible" data-inset="false">
-					<h3>
-						Versorger<span class="ui-li-count">1</span>
-					</h3>
-					<ul data-role="listview">
-						<li><a href="#">Hinzufügen</a></li>
-						<li><a href="#">Bearbeiten</a></li>
-						<li><a href="#">Hochlastzeitfenster hinzufügen</a></li>
-						<li><a href="#">Hochlastzeitfenster bearbeiten</a></li>
-					</ul>
-				</div> <!-- /collapsible -->
-				<div data-role="collapsible" data-inset="false">
-					<h3>ISO-50001</h3>
-					<ul data-role="listview">
-						<li><a href="#">Einleitendes</a></li>
-						<li><a href="#">Schulung</a></li>
-						<li><a href="#">Zertifizierung</a></li>
-					</ul>
-				</div> <!-- /collapsible --></li>
+			<li><div data-role="collapsible-set" data-theme="a" data-content-theme="a" id="list"></div> <!-- /collapsible --></li>
 		</ul>
 	</div>
 
