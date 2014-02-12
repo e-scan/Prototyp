@@ -1,0 +1,50 @@
+/**
+ * Stylesheet: e-scan2-1-kaufmann.css
+ * Website: http://www.e-scan.de/
+ * Copyright (c) 2013 Buff + Meine Werbeagentur
+ * All rights reserved
+ */
+
+A         { text-decoration: underline; color: #0083a7; outline: none; }
+A:hover   { text-decoration: none; }
+A:visited { text-decoration: none; color: #0083a7; }
+
+HR
+{
+    height: 1px;
+    color:      #0083a7;
+    background: #0083a7;
+    border:     #0083a7;
+}
+
+H1, H2, H3 { color: #0083a7; }
+
+                P.icon
+                {
+                    width:  46px;
+                    height: 46px;
+                    background: url(../images-esn/icon-kaufmann.png) top left no-repeat;
+                }
+                
+                   #mbwrapper
+                   {
+                        padding: 0px 8px;
+                        background: url(../images-esn/backgnd-mbwrapper-kaufmann.png) bottom left no-repeat;
+                   }
+				   
+/*Mailform*/
+.mf-submit { color: #0083a7; border: 1px solid #0083a7;}
+.mf-input, .mf-textarea, .mf-select { border: 1px solid #0083a7;}
+
+/*Loginbox*/
+.login_button input {color: #0083a7; border: 1px solid #0083a7;}
+.login_input_user input, .login_input_pw input, .login-input-change-mail input, .login-input-new-pw input { border: 1px solid #0083a7;}
+
+/*Bilderrahmen*/
+.csc-textpic-border img {
+border: none !important;
+border-bottom: 4px solid #0083a7 !important;
+-webkit-box-shadow: 0 10px 8px -8px;
+box-shadow: 0 10px 8px -8px;
+margin-top: 10px;
+}
