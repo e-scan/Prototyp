@@ -7,11 +7,11 @@
 
 <title>Design 6</title>
 
-<link rel="stylesheet" href="jquery.mobile-1.4.0/jquery.mobile-1.4.0.css" />
-<link rel="stylesheet" href="jquery.mobile-1.4.0/jquery.mobile.icons-1.4.0.min.css" />
+<link rel="stylesheet" href="themes/jquery.mobile.inline-png-1.4.0.escan.css" />
 
-<script src="jquery-2.1.0.js"></script>
-<script src="jquery.mobile-1.4.0/jquery.mobile-1.4.0.js"></script>
+<script src="jquery/jquery-2.1.0.min.js"></script>
+<script src="jquery/jquery.mobile-1.4.0.min.js"></script>
+<script src="dygraph-combined.js"></script>
 
 <script type="text/javascript">
     $(document).on("pagecreate", function() {
@@ -37,7 +37,7 @@
 
     function loadLastgang() {
 
-	$('#loader').load('lastgang.html', function() {
+	$('#loader').load('templates/lastgang.html', function() {
 	    $('#loader').trigger('create');
 	});
 
@@ -45,7 +45,7 @@
 
     function addLastgang() {
 
-	$.get('lastgangMenu.html', function(data) {
+	$.get('templates/lastgangMenu.html', function(data) {
 	    $("#list").append(data).trigger('create');
 	});
 
@@ -53,7 +53,7 @@
 
     function addProvider() {
 
-	$.get('providerMenu.html', function(data) {
+	$.get('templates/providerMenu.html', function(data) {
 	    $("#list").append(data).trigger('create');
 	});
 
@@ -61,16 +61,15 @@
 
     function addiso() {
 
-	$.get('isoMenu.html', function(data) {
+	$.get('templates/isoMenu.html', function(data) {
 	    $("#list").append(data).trigger('create');
 	});
 
     }
-    
-    function deleteLast(){
+
+    function deleteLast() {
 	$('#list li:last-child').remove();
     }
-    
 </script>
 
 <style>
@@ -119,7 +118,7 @@ dd {
 
 	<div id="page" data-role="page" data-theme="a">
 
-		<div id="header" data-role="header" data-position="inline">
+		<div id="header" data-role="header" data-position="fixed">
 			<h1>eScan Manager Pro APP</h1>
 
 			<div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-right">
@@ -136,7 +135,7 @@ dd {
 
 		</div>
 
-		<div id="footer" data-role="footer">
+		<div id="footer" data-role="footer" data-position="fixed">
 			<img src="eSCAN-Logo_small.png">
 		</div>
 
@@ -161,11 +160,11 @@ dd {
 			<div role="main" class="ui-content" id="openDialog">
 				<h3 class="ui-title">Welche APP soll geöffnet werden?</h3>
 				<ul data-role="listview" data-inset="true">
-					<li data-icon="info" id="skull"><a onclick="addLastgang();">Lastganganalyse</a></li>
-					<li data-icon="delete"><a onclick="addProvider();">Versorger</a></li>
-					<li data-icon="gear"><a onclick="addiso();"">ISO-50001</a></li>
+					<li data-icon="info" id="skull"><a data-rel="back" onclick="addLastgang();">Lastganganalyse</a></li>
+					<li data-icon="delete"><a data-rel="back" onclick="addProvider();">Versorger</a></li>
+					<li data-icon="gear"><a data-rel="back" onclick="addiso();"">ISO-50001</a></li>
 				</ul>
-				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Zurück</a>
 			</div>
 
 		</div>
@@ -199,7 +198,7 @@ dd {
 		</ul>
 	</div>
 
-	<div data-role="panel" id="appsPanel" data-position="left" data-display="overlay" data-theme="a">
+	<div data-role="panel" id="appsPanel" data-position="left" data-position="fixed" data-display="push" data-theme="a">
 		<ul data-role="listview">
 			<li data-icon="back"><a href="#" data-rel="close">Schliessen</a></li>
 			<li><a href="#popupOpen" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-plus ui-btn-icon-left ui-btn-b">Öffne APP</a></li>

@@ -1,0 +1,37 @@
+<head>
+<meta charset="utf-8">
+</head>
+
+<div data-role="collapsible" data-inset="false">
+	<h3>
+		Lastganganalyse<span class="ui-li-count">3</span>
+	</h3>
+	<ul data-role="listview">
+		<li><a href="#popupDialog" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-delete ui-btn-icon-left ui-btn-b">APP schliessen</a></li>
+		<li><a onclick='loadLastgang();' href="#">Lastgang</a></li>
+		<li><a href="#frequency">Häufigkeitsdiagramm</a></li>
+		<li>
+			<div data-role="collapsible-set" data-theme="a" data-content-theme="a">
+				<div data-role="collapsible">
+					<h3>Lastgang:</h3>
+					<fieldset>
+						<input type="file" name="file" id="file" value="">
+					</fieldset>
+				</div>
+				<div data-role="collapsible" data-theme="a" data-content-theme="a">
+					<h3>Einstellungen</h3>
+					<fieldset id="contlgrp" data-role="controlgroup" data-type="horizontal" data-mini="true">
+						<input type="radio" name="radio-choice-b" id="radio-choice-c" value="list" checked="checked"> <label for="radio-choice-c">Bla</label> <input type="radio" name="radio-choice-b" id="radio-choice-d" value="grid"> <label for="radio-choice-d">Bli</label> <input type="radio" name="radio-choice-b" id="radio-choice-e" value="gallery"> <label for="radio-choice-e">Blubb</label>
+					</fieldset>
+				</div>
+				<div data-role="collapsible">
+					<h3>Diagramm-Darstellung</h3>
+					<fieldset data-role="controlgroup">
+						<input type="checkbox" name="checkbox-1a" id="checkbox-1a"> <label for="checkbox-1a">Zeige Gitternetz</label> <input type="checkbox" name="checkbox-2a" id="checkbox-2a"> <label for="checkbox-2a">Zeige 20%/100KW-Linie</label> <input type="checkbox" name="checkbox-3a" id="checkbox-3a"> <label for="checkbox-3a">Zeige Datum</label>
+					</fieldset>
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>
+<!-- /collapsible -->
