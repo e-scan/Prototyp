@@ -19,6 +19,7 @@
 				<li><a href="#tab-hltw">Hochlastzeitfenster</a></li>
 				<li><a href="#tabs-graph-zoom">Zoom</a></li>
 				<li><a href="#tabs-1">Darstellung</a></li>
+				<li><a href="#highestValues">Höchste Werte</a></li>
 			</ul>
 			<div id="tab-fileUpload">
 				<!-- here comes the file-input with progressbar etc! -->
@@ -76,10 +77,12 @@
 
 				</p>
 			</div>
+			<div id="highestValues"></div>
 		</div>
 	</div>
 
 	<!-- here the graph will be drawn in! -->
+	<br>
 	<div id="graph" style="height: 500px; width: 95%;">
 		<div id="innerGraph" style="height: 95%; height: 95%;"></div>
 	</div>
@@ -95,8 +98,7 @@
 	</div>
 
 	<script type="text/javascript">
-		document.getElementById('files').addEventListener('change',
-				handleFileSelect, false);
+		document.getElementById('files').addEventListener('change', handleFileSelect, false);
 	</script>
 
 
